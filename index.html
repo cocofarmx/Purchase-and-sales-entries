@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Husk Entries</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --accent: #c8f03a;
+    --accent2: #3affc8;
+    --text: #f0f0f0;
+    --muted: #888;
+    --danger: #ff5252;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+  }
+  /* Header */
+  header {
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* Main layout */
+  main { max-width: 1200px; margin: 0 auto; padding: 36px 40px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 32px; background: var(--surface); border-radius: 12px; padding: 5px; width: fit-content; }
+  .tab {
+    padding: 10px 24px; border-radius: 8px; border: none;
+    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: var(--muted); background: transparent;
+  }
+  .tab.active { background: var(--accent); color: #000; }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* Form */
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px; background: var(--surface); border-radius: 16px;
+    padding: 32px; border: 1px solid var(--border);
+  }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 0.75rem; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .field input, .field select {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 14px; border-radius: 10px;
+    font-family: 'DM Mono', monospace; font-size: 0.95rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+  .form-footer { grid-column: 1/-1; display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 28px; border-radius: 10px; border: none;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #d9ff50; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-export { background: var(--surface2); color: var(--accent2); border: 1px solid var(--accent2); }
+  .btn-export:hover { background: var(--accent2); color: #000; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; }
+  .btn-danger:hover { border-color: var(--danger); background: rgba(255,82,82,0.1); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Table section */
+  .table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .table-title { font-size: 1.1rem; font-weight: 800; }
+  .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filter-select {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 14px; border-radius: 10px;
+    font-family: 'Syne', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--surface); }
+  th {
+    padding: 14px 16px; text-align: left; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td {
+    padding: 13px 16px; font-family: 'DM Mono', monospace;
+    font-size: 0.88rem; border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface); }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600; background: rgba(200,240,58,0.12);
+    color: var(--accent); border: 1px solid rgba(200,240,58,0.25);
+  }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px 20px;
+  }
+  .stat-card .label { font-size: 0.72rem; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  /* Empty / loading */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+  .spinner {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--surface2); color: var(--text);
+    padding: 14px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 600;
+    border-left: 4px solid var(--accent); box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.error { border-left-color: var(--danger); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    header { padding: 18px 20px; }
+    main { padding: 24px 16px; }
+    .form-grid { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌾</div>
+    <h1>Husk <span>Entries</span></h1>
+  </div>
+  <div class="header-actions">
+    <span id="statusDot" style="font-size:0.8rem;color:var(--muted);">Connecting...</span>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('add')">+ Add Entry</button>
+    <button class="tab" onclick="switchTab('view')">View Entries</button>
+  </div>
+
+  <!-- ADD TAB -->
+  <div id="tab-add">
+    <div class="form-grid">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="f-date" />
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Madhan" />
+      </div>
+      <div class="field">
+        <label>Time</label>
+        <input type="time" id="f-time" />
+      </div>
+      <div class="field">
+        <label>Vehicle Number</label>
+        <input type="text" id="f-vehicle" placeholder="e.g. TN33CA4439" style="text-transform:uppercase;" />
+      </div>
+      <div class="field">
+        <label>Signature (Name)</label>
+        <input type="text" id="f-signature" placeholder="e.g. P.Mathalouny" />
+      </div>
+      <div class="field" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-primary" id="submitBtn" onclick="submitEntry()">
+          <span id="submitText">Save Entry</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW TAB -->
+  <div id="tab-view" class="hidden">
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">Total Entries</div>
+        <div class="value" id="statTotal">—</div>
+        <div class="sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">This Month</div>
+        <div class="value" id="statMonth">—</div>
+        <div class="sub" id="statMonthLabel">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Unique Vehicles</div>
+        <div class="value" id="statVehicles">—</div>
+        <div class="sub">Registered</div>
+      </div>
+    </div>
+
+    <div class="table-header">
+      <div class="table-title">All Entries</div>
+      <div class="filters">
+        <select class="filter-select" id="filterMonth" onchange="applyFilter()">
+          <option value="">All Months</option>
+        </select>
+        <select class="filter-select" id="filterName" onchange="applyFilter()">
+          <option value="">All Names</option>
+        </select>
+        <button class="btn btn-export" onclick="exportExcel()">⬇ Export Excel</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Time</th>
+            <th>Vehicle</th>
+            <th>Signature</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7"><div class="empty"><div class="spinner"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://zfchxqrvzcmiirjwiftd.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ypKn7lFOmRAhaelMMdZiGw_3E9C9ekc';
+  const TABLE = 'husk_entries';
+
+  let allEntries = [];
+
+  async function api(method, path, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : '',
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'API Error');
+    }
+    return method === 'DELETE' ? null : res.json();
+  }
+
+  async function init() {
+    try {
+      await fetchEntries();
+      document.getElementById('statusDot').textContent = '🟢 Connected';
+      document.getElementById('statusDot').style.color = 'var(--accent)';
+    } catch(e) {
+      document.getElementById('statusDot').textContent = '🔴 Error';
+      document.getElementById('statusDot').style.color = 'var(--danger)';
+    }
+  }
+
+  async function fetchEntries() {
+    allEntries = await api('GET', `${TABLE}?order=date.desc,created_at.desc&select=*`);
+    renderTable(allEntries);
+    updateStats(allEntries);
+    populateFilters(allEntries);
+  }
+
+  function renderTable(entries) {
+    const tbody = document.getElementById('tableBody');
+    if (!entries.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="icon">📋</div><div>No entries found</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = entries.map((e, i) => `
+      <tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td>${formatDate(e.date)}</td>
+        <td style="font-family:'Syne',sans-serif;font-weight:600">${e.name}</td>
+        <td>${e.time}</td>
+        <td><span class="badge">${e.vehicle_number}</span></td>
+        <td style="color:var(--muted)">${e.signature || '—'}</td>
+        <td><button class="btn btn-danger" onclick="deleteEntry(${e.id})">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y,m,day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+
+  function updateStats(entries) {
+    document.getElementById('statTotal').textContent = entries.length;
+    const now = new Date();
+    const thisMonth = entries.filter(e => {
+      const d = new Date(e.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    document.getElementById('statMonth').textContent = thisMonth.length;
+    document.getElementById('statMonthLabel').textContent = now.toLocaleString('default',{month:'long',year:'numeric'});
+    const vehicles = new Set(entries.map(e => e.vehicle_number).filter(Boolean));
+    document.getElementById('statVehicles').textContent = vehicles.size;
+  }
+
+  function populateFilters(entries) {
+    const months = [...new Set(entries.map(e => e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+    const names = [...new Set(entries.map(e => e.name).filter(Boolean))].sort();
+    const mSel = document.getElementById('filterMonth');
+    const nSel = document.getElementById('filterName');
+    const mVal = mSel.value, nVal = nSel.value;
+    mSel.innerHTML = '<option value="">All Months</option>' + months.map(m => {
+      const [y,mo] = m.split('-');
+      const label = new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'});
+      return `<option value="${m}" ${mVal===m?'selected':''}>${label}</option>`;
+    }).join('');
+    nSel.innerHTML = '<option value="">All Names</option>' + names.map(n =>
+      `<option value="${n}" ${nVal===n?'selected':''}>${n}</option>`
+    ).join('');
+  }
+
+  function applyFilter() {
+    const month = document.getElementById('filterMonth').value;
+    const name = document.getElementById('filterName').value;
+    let filtered = allEntries;
+    if (month) filtered = filtered.filter(e => e.date?.startsWith(month));
+    if (name) filtered = filtered.filter(e => e.name === name);
+    renderTable(filtered);
+  }
+
+  async function submitEntry() {
+    const date = document.getElementById('f-date').value;
+    const name = document.getElementById('f-name').value.trim();
+    const time = document.getElementById('f-time').value;
+    const vehicle_number = document.getElementById('f-vehicle').value.trim().toUpperCase();
+    const signature = document.getElementById('f-signature').value.trim();
+
+    if (!date || !name || !time || !vehicle_number) {
+      toast('Please fill Date, Name, Time & Vehicle Number', true); return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    document.getElementById('submitText').innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const timeFormatted = formatTime(time);
+      await api('POST', TABLE, { date, name, time: timeFormatted, vehicle_number, signature });
+      toast('Entry saved successfully!');
+      clearForm();
+      await fetchEntries();
+    } catch(e) {
+      toast('Error saving entry: ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      document.getElementById('submitText').textContent = 'Save Entry';
+    }
+  }
+
+  function formatTime(t) {
+    if (!t) return '';
+    const [h, m] = t.split(':');
+    const hour = parseInt(h);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    return `${h12}:${m} ${ampm}`;
+  }
+
+  async function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    try {
+      await api('DELETE', `${TABLE}?id=eq.${id}`);
+      toast('Entry deleted');
+      await fetchEntries();
+    } catch(e) {
+      toast('Error: ' + e.message, true);
+    }
+  }
+
+  function clearForm() {
+    ['f-date','f-name','f-time','f-vehicle','f-signature'].forEach(id => document.getElementById(id).value = '');
+    setTodayDate();
+  }
+
+  function setTodayDate() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f-date').value = today;
+  }
+
+  function exportExcel() {
+    const month = document.getElementById('filterMonth').value;
+    const name = document.getElementById('filterName').value;
+    let data = allEntries;
+    if (month) data = data.filter(e => e.date?.startsWith(month));
+    if (name) data = data.filter(e => e.name === name);
+
+    const rows = data.map((e, i) => ({
+      'S.No': i+1,
+      'Date': formatDate(e.date),
+      'Name': e.name,
+      'Time': e.time,
+      'Vehicle Number': e.vehicle_number,
+      'Signature': e.signature || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Husk Entries');
+
+    const colWidths = [6, 13, 22, 12, 18, 20];
+    ws['!cols'] = colWidths.map(w => ({ wch: w }));
+
+    const filename = month
+      ? `husk_entries_${month}.xlsx`
+      : `husk_entries_all.xlsx`;
+    XLSX.writeFile(wb, filename);
+    toast('Excel exported!');
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='add')||(i===1&&tab==='view')));
+    document.getElementById('tab-add').classList.toggle('hidden', tab !== 'add');
+    document.getElementById('tab-view').classList.toggle('hidden', tab !== 'view');
+  }
+
+  let toastTimer;
+  function toast(msg, isError=false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (isError ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.className = '', 3000);
+  }
+
+  setTodayDate();
+  init();
+</script>
+</body>
+</html>
