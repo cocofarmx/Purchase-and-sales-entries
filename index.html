@@ -1,501 +1,524 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Husk Entries</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0f0f0f;
-    --surface: #181818;
-    --surface2: #222222;
-    --border: #2e2e2e;
-    --accent: #c8f03a;
-    --accent2: #3affc8;
-    --text: #f0f0f0;
-    --muted: #888;
-    --danger: #ff5252;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-  }
-  /* Header */
-  header {
-    padding: 28px 40px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 100;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo-icon {
-    width: 38px; height: 38px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .logo h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .header-actions { display: flex; gap: 10px; align-items: center; }
-
-  /* Main layout */
-  main { max-width: 1200px; margin: 0 auto; padding: 36px 40px; }
-
-  /* Tabs */
-  .tabs { display: flex; gap: 4px; margin-bottom: 32px; background: var(--surface); border-radius: 12px; padding: 5px; width: fit-content; }
-  .tab {
-    padding: 10px 24px; border-radius: 8px; border: none;
-    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; color: var(--muted); background: transparent;
-  }
-  .tab.active { background: var(--accent); color: #000; }
-  .tab:hover:not(.active) { color: var(--text); }
-
-  /* Form */
-  .form-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px; background: var(--surface); border-radius: 16px;
-    padding: 32px; border: 1px solid var(--border);
-  }
-  .field { display: flex; flex-direction: column; gap: 8px; }
-  .field label { font-size: 0.75rem; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .field input, .field select {
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 12px 14px; border-radius: 10px;
-    font-family: 'DM Mono', monospace; font-size: 0.95rem;
-    outline: none; transition: border-color 0.2s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--accent); }
-  .field input::placeholder { color: var(--muted); }
-  .form-footer { grid-column: 1/-1; display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
-
-  /* Buttons */
-  .btn {
-    padding: 12px 28px; border-radius: 10px; border: none;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem;
-    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
-  }
-  .btn-primary { background: var(--accent); color: #000; }
-  .btn-primary:hover { background: #d9ff50; transform: translateY(-1px); }
-  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-export { background: var(--surface2); color: var(--accent2); border: 1px solid var(--accent2); }
-  .btn-export:hover { background: var(--accent2); color: #000; }
-  .btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; }
-  .btn-danger:hover { border-color: var(--danger); background: rgba(255,82,82,0.1); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* Table section */
-  .table-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
-  }
-  .table-title { font-size: 1.1rem; font-weight: 800; }
-  .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .filter-select {
-    background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); padding: 9px 14px; border-radius: 10px;
-    font-family: 'Syne', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer;
-  }
-  .filter-select:focus { border-color: var(--accent); }
-
-  .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--surface); }
-  th {
-    padding: 14px 16px; text-align: left; font-size: 0.72rem;
-    font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
-    border-bottom: 1px solid var(--border); white-space: nowrap;
-  }
-  td {
-    padding: 13px 16px; font-family: 'DM Mono', monospace;
-    font-size: 0.88rem; border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-  tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--surface); }
-  .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 20px;
-    font-size: 0.75rem; font-weight: 600; background: rgba(200,240,58,0.12);
-    color: var(--accent); border: 1px solid rgba(200,240,58,0.25);
-  }
-
-  /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 14px; padding: 22px 20px;
-  }
-  .stat-card .label { font-size: 0.72rem; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-  .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; }
-  .stat-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
-
-  /* Empty / loading */
-  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty .icon { font-size: 3rem; margin-bottom: 12px; }
-  .spinner {
-    width: 20px; height: 20px; border: 2px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.7s linear infinite; display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 30px; right: 30px;
-    background: var(--surface2); color: var(--text);
-    padding: 14px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 600;
-    border-left: 4px solid var(--accent); box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999;
-  }
-  #toast.show { transform: translateY(0); opacity: 1; }
-  #toast.error { border-left-color: var(--danger); }
-
-  .hidden { display: none !important; }
-
-  @media (max-width: 600px) {
-    header { padding: 18px 20px; }
-    main { padding: 24px 16px; }
-    .form-grid { padding: 20px; }
-  }
+:root{--bg:#f5f6fa;--white:#ffffff;--border:#e4e7ed;--border2:#d0d5dd;--text:#111827;--muted:#6b7280;--muted2:#9ca3af;--primary:#2563eb;--primary-light:#eff6ff;--primary-hover:#1d4ed8;--success:#16a34a;--success-light:#f0fdf4;--danger:#dc2626;--danger-light:#fef2f2;--warning:#d97706;--warning-light:#fffbeb;--shadow-sm:0 1px 3px rgba(0,0,0,0.08);--shadow:0 4px 12px rgba(0,0,0,0.08);--shadow-lg:0 10px 30px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-logo{padding:22px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-mark{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.logo-text{font-size:0.95rem;font-weight:800;color:var(--text);line-height:1.2;}
+.logo-text span{display:block;font-size:0.68rem;font-weight:500;color:var(--muted);}
+.sidebar-nav{padding:14px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
+.nav-label{font-size:0.63rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding:10px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);font-size:0.875rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--primary-light);color:var(--primary);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);}
+.status-pill{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted);font-weight:500;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex-shrink:0;}
+.dot.online{background:var(--success);box-shadow:0 0 0 3px rgba(22,163,74,0.2);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:1.05rem;font-weight:800;}
+.topbar-actions{display:flex;gap:8px;}
+.content{padding:28px 32px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.card-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:0.92rem;font-weight:700;}
+.card-body{padding:22px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.blue::before{background:var(--primary);}
+.stat-card.green::before{background:var(--success);}
+.stat-card.orange::before{background:var(--warning);}
+.stat-card.purple::before{background:#7c3aed;}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px;}
+.si-blue{background:var(--primary-light);}
+.si-green{background:var(--success-light);}
+.si-orange{background:var(--warning-light);}
+.si-purple{background:#f5f3ff;}
+.stat-value{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:4px;}
+.stat-label{font-size:0.76rem;font-weight:600;color:var(--muted);}
+.stat-sub{font-size:0.7rem;color:var(--muted2);margin-top:2px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:0.78rem;font-weight:700;color:var(--text);}
+.field input,.field select{padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+.field input::placeholder{color:var(--muted2);}
+.req{color:var(--danger);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-hover);box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+.btn-secondary{background:var(--white);color:var(--text);border:1.5px solid var(--border2);}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#15803d;}
+.btn-ghost{background:transparent;color:var(--muted);border:none;padding:6px 10px;}
+.btn-ghost:hover{background:var(--bg);color:var(--text);}
+.btn-sm{padding:7px 14px;font-size:0.8rem;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.search-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);transition:border-color 0.15s;}
+.search-bar:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+.search-bar input{border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--text);background:transparent;width:190px;}
+.filter-select{padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;color:var(--text);background:var(--white);outline:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--primary);}
+.table-toolbar{padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:11px 16px;text-align:left;font-size:0.7rem;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:12px 16px;font-size:0.875rem;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#fafbff;}
+.sno{font-family:'JetBrains Mono',monospace;font-size:0.76rem;color:var(--muted2);}
+.vbadge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:0.76rem;font-weight:700;font-family:'JetBrains Mono',monospace;background:var(--primary-light);color:var(--primary);border:1px solid #bfdbfe;}
+.name-cell{font-weight:600;}
+.time-cell{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);}
+.sig-cell{color:var(--muted);font-size:0.84rem;}
+.pagination{padding:13px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);}
+.page-info{font-size:0.78rem;color:var(--muted);}
+.page-btns{display:flex;gap:4px;}
+.page-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:var(--white);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;color:var(--text);}
+.page-btn:hover{border-color:var(--primary);color:var(--primary);}
+.page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;transform:translateY(20px);transition:transform 0.2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:0.95rem;font-weight:700;}
+.modal-body{padding:22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.chart-body{padding:18px;}
+.empty-state{padding:50px 20px;text-align:center;}
+.empty-icon{font-size:2.2rem;margin-bottom:10px;}
+.empty-title{font-size:0.92rem;font-weight:700;margin-bottom:4px;}
+.empty-sub{font-size:0.8rem;color:var(--muted);}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--text);color:#fff;padding:12px 20px;border-radius:var(--radius-sm);font-size:0.875rem;font-weight:600;box-shadow:var(--shadow-lg);transform:translateY(80px);opacity:0;transition:all 0.3s;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{background:var(--success);}
+#toast.error{background:var(--danger);}
+.hidden{display:none!important;}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.flex{display:flex;}.gap-2{gap:8px;}.ml-auto{margin-left:auto;}.mb-4{margin-bottom:18px;}
+.report-summary{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;gap:28px;flex-wrap:wrap;}
+.rsm-item .label{font-size:0.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.rsm-item .val{font-size:1.5rem;font-weight:800;}
+@media print{.sidebar,.topbar,.table-toolbar,.pagination,.no-print{display:none!important;}.main{margin-left:0;}.content{padding:0;}.card{box-shadow:none;}}
+@media(max-width:768px){.sidebar{width:200px;}.main{margin-left:200px;}.stats-grid{grid-template-columns:repeat(2,1fr);}.charts-grid{grid-template-columns:1fr;}.content{padding:16px;}.topbar{padding:0 16px;}}
+@media(max-width:560px){.sidebar{display:none;}.main{margin-left:0;}}
 </style>
 </head>
 <body>
+<div class="layout">
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">🌾</div>
-    <h1>Husk <span>Entries</span></h1>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">🌾</div>
+    <div class="logo-text">Husk Entries<span>Management System</span></div>
   </div>
-  <div class="header-actions">
-    <span id="statusDot" style="font-size:0.8rem;color:var(--muted);">Connecting...</span>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Menu</div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><span>📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('add')"><span>➕</span> Add Entry</button>
+    <button class="nav-item" onclick="showPage('entries')"><span>📋</span> All Entries</button>
+    <div class="nav-label">Reports</div>
+    <button class="nav-item" onclick="showPage('reports')"><span>📈</span> Monthly Report</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-pill">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusText">Connecting...</span>
+    </div>
   </div>
-</header>
+</aside>
 
-<main>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('add')">+ Add Entry</button>
-    <button class="tab" onclick="switchTab('view')">View Entries</button>
-  </div>
-
-  <!-- ADD TAB -->
-  <div id="tab-add">
-    <div class="form-grid">
-      <div class="field">
-        <label>Date</label>
-        <input type="date" id="f-date" />
-      </div>
-      <div class="field">
-        <label>Name</label>
-        <input type="text" id="f-name" placeholder="e.g. Madhan" />
-      </div>
-      <div class="field">
-        <label>Time</label>
-        <input type="time" id="f-time" />
-      </div>
-      <div class="field">
-        <label>Vehicle Number</label>
-        <input type="text" id="f-vehicle" placeholder="e.g. TN33CA4439" style="text-transform:uppercase;" />
-      </div>
-      <div class="field">
-        <label>Signature (Name)</label>
-        <input type="text" id="f-signature" placeholder="e.g. P.Mathalouny" />
-      </div>
-      <div class="field" style="justify-content:flex-end;">
-        <label>&nbsp;</label>
-        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
-      </div>
-      <div class="form-footer">
-        <button class="btn btn-primary" id="submitBtn" onclick="submitEntry()">
-          <span id="submitText">Save Entry</span>
-        </button>
-      </div>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-actions no-print">
+      <button class="btn btn-secondary btn-sm" onclick="refreshData()">↻ Refresh</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('add')">+ Add Entry</button>
     </div>
   </div>
 
-  <!-- VIEW TAB -->
-  <div id="tab-view" class="hidden">
-    <div class="stats">
-      <div class="stat-card">
-        <div class="label">Total Entries</div>
-        <div class="value" id="statTotal">—</div>
-        <div class="sub">All time</div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon si-blue">📋</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total Entries</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon si-green">📅</div>
+          <div class="stat-value" id="statMonth">—</div>
+          <div class="stat-label">This Month</div>
+          <div class="stat-sub" id="statMonthLabel">—</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon si-orange">🚗</div>
+          <div class="stat-value" id="statVehicles">—</div>
+          <div class="stat-label">Unique Vehicles</div>
+          <div class="stat-sub">Registered</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon si-purple">👤</div>
+          <div class="stat-value" id="statDrivers">—</div>
+          <div class="stat-label">Unique Drivers</div>
+          <div class="stat-sub">All time</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="label">This Month</div>
-        <div class="value" id="statMonth">—</div>
-        <div class="sub" id="statMonthLabel">—</div>
+      <div class="charts-grid" style="margin-bottom:22px">
+        <div class="chart-card">
+          <div class="card-header"><div class="card-title">Monthly Entries</div></div>
+          <div class="chart-body"><canvas id="chartMonthly" height="200"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="card-header"><div class="card-title">Top Drivers</div></div>
+          <div class="chart-body"><canvas id="chartDrivers" height="200"></canvas></div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="label">Unique Vehicles</div>
-        <div class="value" id="statVehicles">—</div>
-        <div class="sub">Registered</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent Entries</div>
+          <button class="btn btn-ghost btn-sm" onclick="showPage('entries')">View all →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Date</th><th>Name</th><th>Time</th><th>Vehicle</th><th>Signature</th></tr></thead>
+            <tbody id="recentBody"><tr><td colspan="6"><div class="empty-state"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div class="table-header">
-      <div class="table-title">All Entries</div>
-      <div class="filters">
-        <select class="filter-select" id="filterMonth" onchange="applyFilter()">
-          <option value="">All Months</option>
-        </select>
-        <select class="filter-select" id="filterName" onchange="applyFilter()">
-          <option value="">All Names</option>
-        </select>
-        <button class="btn btn-export" onclick="exportExcel()">⬇ Export Excel</button>
+    <!-- ADD ENTRY -->
+    <div id="page-add" class="hidden">
+      <div class="card" style="max-width:700px">
+        <div class="card-header"><div class="card-title">New Entry</div></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Date <span class="req">*</span></label>
+              <input type="date" id="f-date"/>
+            </div>
+            <div class="field">
+              <label>Name <span class="req">*</span></label>
+              <input type="text" id="f-name" placeholder="e.g. Madhan"/>
+            </div>
+            <div class="field">
+              <label>Time <span class="req">*</span></label>
+              <input type="time" id="f-time"/>
+            </div>
+            <div class="field">
+              <label>Vehicle Number <span class="req">*</span></label>
+              <input type="text" id="f-vehicle" placeholder="e.g. TN33CA4439" style="text-transform:uppercase"/>
+            </div>
+            <div class="field" style="grid-column:span 2">
+              <label>Signature (Name)</label>
+              <input type="text" id="f-signature" placeholder="e.g. P.Mathalouny"/>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="flex gap-2" style="justify-content:flex-end">
+            <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitEntry()">
+              <span id="submitText">Save Entry</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Time</th>
-            <th>Vehicle</th>
-            <th>Signature</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="7"><div class="empty"><div class="spinner"></div></div></td></tr>
-        </tbody>
-      </table>
+    <!-- ALL ENTRIES -->
+    <div id="page-entries" class="hidden">
+      <div class="card">
+        <div class="table-toolbar no-print">
+          <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Search name or vehicle..." oninput="applyFilters()"/>
+          </div>
+          <select class="filter-select" id="filterMonth" onchange="applyFilters()"><option value="">All Months</option></select>
+          <select class="filter-select" id="filterName" onchange="applyFilters()"><option value="">All Drivers</option></select>
+          <div class="ml-auto flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+            <button class="btn btn-success btn-sm" onclick="exportExcel()">⬇ Excel</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Date</th><th>Name</th><th>Time</th><th>Vehicle Number</th><th>Signature</th><th class="no-print">Actions</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="7"><div class="empty-state"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination no-print">
+          <div class="page-info" id="pageInfo">—</div>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="page-reports" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Monthly Report</div>
+          <div class="flex gap-2 no-print">
+            <select class="filter-select" id="reportMonth" onchange="loadReport()"><option value="">Select Month</option></select>
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+            <button class="btn btn-success btn-sm" onclick="exportReport()">⬇ Excel</button>
+          </div>
+        </div>
+        <div id="reportContent">
+          <div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month to view report</div><div class="empty-sub">Choose from the dropdown above</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Entry</div>
+      <button class="btn btn-ghost" onclick="closeModal()" style="padding:4px 8px;font-size:1rem;">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id"/>
+      <div class="form-grid">
+        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="edit-date"/></div>
+        <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="edit-name"/></div>
+        <div class="field"><label>Time <span class="req">*</span></label><input type="text" id="edit-time" placeholder="e.g. 4:30 PM"/></div>
+        <div class="field"><label>Vehicle Number <span class="req">*</span></label><input type="text" id="edit-vehicle" style="text-transform:uppercase"/></div>
+        <div class="field" style="grid-column:span 2"><label>Signature</label><input type="text" id="edit-signature"/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
     </div>
   </div>
-</main>
+</div>
 
 <div id="toast"></div>
 
 <script>
-  const SUPABASE_URL = 'https://zfchxqrvzcmiirjwiftd.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_ypKn7lFOmRAhaelMMdZiGw_3E9C9ekc';
-  const TABLE = 'husk_entries';
+const SUPABASE_URL='https://zfchxqrvzcmiirjwiftd.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmY2h4cXJ2emNtaWlyandpZnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MTM5MTksImV4cCI6MjA4MzE4OTkxOX0.xYYMInvFo6auPlqO9fiH905869uvkGELpp3Li1g3DHQ';
+const TABLE='husk_entries';
+let allEntries=[],filteredEntries=[],currentPage=1,chartM=null,chartD=null;
+const PER_PAGE=15;
 
-  let allEntries = [];
+async function api(method,path,body){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{method,headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':method==='PATCH'?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  if(!res.ok){const e=await res.json();throw new Error(e.message||'API Error');}
+  return method==='DELETE'?null:res.json();
+}
 
-  async function api(method, path, body) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      method,
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': method === 'POST' ? 'return=representation' : '',
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'API Error');
-    }
-    return method === 'DELETE' ? null : res.json();
-  }
-
-  async function init() {
-    try {
-      await fetchEntries();
-      document.getElementById('statusDot').textContent = '🟢 Connected';
-      document.getElementById('statusDot').style.color = 'var(--accent)';
-    } catch(e) {
-      document.getElementById('statusDot').textContent = '🔴 Error';
-      document.getElementById('statusDot').style.color = 'var(--danger)';
-    }
-  }
-
-  async function fetchEntries() {
-    allEntries = await api('GET', `${TABLE}?order=date.desc,created_at.desc&select=*`);
-    renderTable(allEntries);
-    updateStats(allEntries);
-    populateFilters(allEntries);
-  }
-
-  function renderTable(entries) {
-    const tbody = document.getElementById('tableBody');
-    if (!entries.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="icon">📋</div><div>No entries found</div></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = entries.map((e, i) => `
-      <tr>
-        <td style="color:var(--muted)">${i+1}</td>
-        <td>${formatDate(e.date)}</td>
-        <td style="font-family:'Syne',sans-serif;font-weight:600">${e.name}</td>
-        <td>${e.time}</td>
-        <td><span class="badge">${e.vehicle_number}</span></td>
-        <td style="color:var(--muted)">${e.signature || '—'}</td>
-        <td><button class="btn btn-danger" onclick="deleteEntry(${e.id})">✕</button></td>
-      </tr>
-    `).join('');
-  }
-
-  function formatDate(d) {
-    if (!d) return '—';
-    const [y,m,day] = d.split('-');
-    return `${day}/${m}/${y}`;
-  }
-
-  function updateStats(entries) {
-    document.getElementById('statTotal').textContent = entries.length;
-    const now = new Date();
-    const thisMonth = entries.filter(e => {
-      const d = new Date(e.date);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    document.getElementById('statMonth').textContent = thisMonth.length;
-    document.getElementById('statMonthLabel').textContent = now.toLocaleString('default',{month:'long',year:'numeric'});
-    const vehicles = new Set(entries.map(e => e.vehicle_number).filter(Boolean));
-    document.getElementById('statVehicles').textContent = vehicles.size;
-  }
-
-  function populateFilters(entries) {
-    const months = [...new Set(entries.map(e => e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
-    const names = [...new Set(entries.map(e => e.name).filter(Boolean))].sort();
-    const mSel = document.getElementById('filterMonth');
-    const nSel = document.getElementById('filterName');
-    const mVal = mSel.value, nVal = nSel.value;
-    mSel.innerHTML = '<option value="">All Months</option>' + months.map(m => {
-      const [y,mo] = m.split('-');
-      const label = new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'});
-      return `<option value="${m}" ${mVal===m?'selected':''}>${label}</option>`;
-    }).join('');
-    nSel.innerHTML = '<option value="">All Names</option>' + names.map(n =>
-      `<option value="${n}" ${nVal===n?'selected':''}>${n}</option>`
-    ).join('');
-  }
-
-  function applyFilter() {
-    const month = document.getElementById('filterMonth').value;
-    const name = document.getElementById('filterName').value;
-    let filtered = allEntries;
-    if (month) filtered = filtered.filter(e => e.date?.startsWith(month));
-    if (name) filtered = filtered.filter(e => e.name === name);
-    renderTable(filtered);
-  }
-
-  async function submitEntry() {
-    const date = document.getElementById('f-date').value;
-    const name = document.getElementById('f-name').value.trim();
-    const time = document.getElementById('f-time').value;
-    const vehicle_number = document.getElementById('f-vehicle').value.trim().toUpperCase();
-    const signature = document.getElementById('f-signature').value.trim();
-
-    if (!date || !name || !time || !vehicle_number) {
-      toast('Please fill Date, Name, Time & Vehicle Number', true); return;
-    }
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    document.getElementById('submitText').innerHTML = '<span class="spinner"></span>';
-
-    try {
-      const timeFormatted = formatTime(time);
-      await api('POST', TABLE, { date, name, time: timeFormatted, vehicle_number, signature });
-      toast('Entry saved successfully!');
-      clearForm();
-      await fetchEntries();
-    } catch(e) {
-      toast('Error saving entry: ' + e.message, true);
-    } finally {
-      btn.disabled = false;
-      document.getElementById('submitText').textContent = 'Save Entry';
-    }
-  }
-
-  function formatTime(t) {
-    if (!t) return '';
-    const [h, m] = t.split(':');
-    const hour = parseInt(h);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m} ${ampm}`;
-  }
-
-  async function deleteEntry(id) {
-    if (!confirm('Delete this entry?')) return;
-    try {
-      await api('DELETE', `${TABLE}?id=eq.${id}`);
-      toast('Entry deleted');
-      await fetchEntries();
-    } catch(e) {
-      toast('Error: ' + e.message, true);
-    }
-  }
-
-  function clearForm() {
-    ['f-date','f-name','f-time','f-vehicle','f-signature'].forEach(id => document.getElementById(id).value = '');
-    setTodayDate();
-  }
-
-  function setTodayDate() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('f-date').value = today;
-  }
-
-  function exportExcel() {
-    const month = document.getElementById('filterMonth').value;
-    const name = document.getElementById('filterName').value;
-    let data = allEntries;
-    if (month) data = data.filter(e => e.date?.startsWith(month));
-    if (name) data = data.filter(e => e.name === name);
-
-    const rows = data.map((e, i) => ({
-      'S.No': i+1,
-      'Date': formatDate(e.date),
-      'Name': e.name,
-      'Time': e.time,
-      'Vehicle Number': e.vehicle_number,
-      'Signature': e.signature || ''
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Husk Entries');
-
-    const colWidths = [6, 13, 22, 12, 18, 20];
-    ws['!cols'] = colWidths.map(w => ({ wch: w }));
-
-    const filename = month
-      ? `husk_entries_${month}.xlsx`
-      : `husk_entries_all.xlsx`;
-    XLSX.writeFile(wb, filename);
-    toast('Excel exported!');
-  }
-
-  function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='add')||(i===1&&tab==='view')));
-    document.getElementById('tab-add').classList.toggle('hidden', tab !== 'add');
-    document.getElementById('tab-view').classList.toggle('hidden', tab !== 'view');
-  }
-
-  let toastTimer;
-  function toast(msg, isError=false) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'show' + (isError ? ' error' : '');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.className = '', 3000);
-  }
-
+async function init(){
   setTodayDate();
-  init();
+  try{
+    await fetchEntries();
+    document.getElementById('statusDot').className='dot online';
+    document.getElementById('statusText').textContent='Connected';
+  }catch(e){
+    document.getElementById('statusText').textContent='Error';
+    toast('Connection failed: '+e.message,'error');
+  }
+}
+
+async function fetchEntries(){
+  allEntries=await api('GET',`${TABLE}?order=date.desc,created_at.desc&select=*`);
+  filteredEntries=[...allEntries];
+  renderDashboard();renderTable();populateFilters();
+}
+
+async function refreshData(){await fetchEntries();toast('Data refreshed','success');}
+
+function showPage(page){
+  ['dashboard','add','entries','reports'].forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('hidden',p!==page);
+  });
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    el.classList.toggle('active',['dashboard','add','entries','reports'][i]===page);
+  });
+  const titles={dashboard:'Dashboard',add:'Add Entry',entries:'All Entries',reports:'Monthly Report'};
+  document.getElementById('pageTitle').textContent=titles[page];
+  if(page==='reports')populateReportMonths();
+  if(page==='entries'){filteredEntries=[...allEntries];applyFilters();}
+}
+
+function renderDashboard(){
+  const now=new Date();
+  const tm=allEntries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  document.getElementById('statTotal').textContent=allEntries.length;
+  document.getElementById('statMonth').textContent=tm.length;
+  document.getElementById('statMonthLabel').textContent=now.toLocaleString('default',{month:'long',year:'numeric'});
+  document.getElementById('statVehicles').textContent=new Set(allEntries.map(e=>e.vehicle_number).filter(Boolean)).size;
+  document.getElementById('statDrivers').textContent=new Set(allEntries.map(e=>e.name).filter(Boolean)).size;
+  const recent=allEntries.slice(0,8);
+  document.getElementById('recentBody').innerHTML=recent.length?recent.map((e,i)=>`<tr><td class="sno">${i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td class="time-cell">${e.time}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td class="sig-cell">${e.signature||'—'}</td></tr>`).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No entries yet</div></div></td></tr>`;
+  renderCharts();
+}
+
+function renderCharts(){
+  const mc={};allEntries.forEach(e=>{if(!e.date)return;const k=e.date.slice(0,7);mc[k]=(mc[k]||0)+1;});
+  const months=Object.keys(mc).sort().slice(-6);
+  const mlabels=months.map(m=>{const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('default',{month:'short',year:'2-digit'});});
+  if(chartM)chartM.destroy();
+  chartM=new Chart(document.getElementById('chartMonthly').getContext('2d'),{type:'bar',data:{labels:mlabels,datasets:[{label:'Entries',data:months.map(m=>mc[m]),backgroundColor:'rgba(37,99,235,0.12)',borderColor:'rgba(37,99,235,0.8)',borderWidth:2,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f3f4f6'},ticks:{stepSize:1}},x:{grid:{display:false}}}}});
+  const dc={};allEntries.forEach(e=>{if(e.name)dc[e.name]=(dc[e.name]||0)+1;});
+  const top=Object.entries(dc).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const colors=['#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2'];
+  if(chartD)chartD.destroy();
+  chartD=new Chart(document.getElementById('chartDrivers').getContext('2d'),{type:'doughnut',data:{labels:top.map(d=>d[0]),datasets:[{data:top.map(d=>d[1]),backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Plus Jakarta Sans'},padding:12}}}}});
+}
+
+function populateFilters(){
+  const months=[...new Set(allEntries.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const names=[...new Set(allEntries.map(e=>e.name).filter(Boolean))].sort();
+  const ms=document.getElementById('filterMonth'),ns=document.getElementById('filterName');
+  const mv=ms.value,nv=ns.value;
+  ms.innerHTML='<option value="">All Months</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${mv===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+  ns.innerHTML='<option value="">All Drivers</option>'+names.map(n=>`<option value="${n}" ${nv===n?'selected':''}>${n}</option>`).join('');
+}
+
+function applyFilters(){
+  const s=document.getElementById('searchInput')?.value.toLowerCase()||'';
+  const m=document.getElementById('filterMonth')?.value||'';
+  const n=document.getElementById('filterName')?.value||'';
+  filteredEntries=allEntries.filter(e=>{
+    if(m&&!e.date?.startsWith(m))return false;
+    if(n&&e.name!==n)return false;
+    if(s&&!e.name?.toLowerCase().includes(s)&&!e.vehicle_number?.toLowerCase().includes(s))return false;
+    return true;
+  });
+  currentPage=1;renderTable();
+}
+
+function renderTable(){
+  const start=(currentPage-1)*PER_PAGE;
+  const page=filteredEntries.slice(start,start+PER_PAGE);
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML=page.length?page.map((e,i)=>`<tr><td class="sno">${start+i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td class="time-cell">${e.time}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td class="sig-cell">${e.signature||'—'}</td><td class="no-print"><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openEdit(${e.id})" title="Edit">✏️</button><button class="btn btn-ghost btn-sm" onclick="deleteEntry(${e.id})" title="Delete">🗑️</button></div></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No entries found</div><div class="empty-sub">Try adjusting filters</div></div></td></tr>`;
+  const total=filteredEntries.length,tp=Math.ceil(total/PER_PAGE);
+  const s2=Math.min((currentPage-1)*PER_PAGE+1,total),e2=Math.min(currentPage*PER_PAGE,total);
+  document.getElementById('pageInfo').textContent=total?`Showing ${s2}–${e2} of ${total} entries`:'0 entries';
+  const pb=document.getElementById('pageBtns');
+  if(tp<=1){pb.innerHTML='';return;}
+  let h=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for(let p=1;p<=tp;p++){if(p===1||p===tp||Math.abs(p-currentPage)<=1)h+=`<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;else if(Math.abs(p-currentPage)===2)h+=`<span class="page-btn" style="border:none;cursor:default">…</span>`;}
+  h+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===tp?'disabled':''}>›</button>`;
+  pb.innerHTML=h;
+}
+
+function goPage(p){currentPage=p;renderTable();}
+
+async function submitEntry(){
+  const date=document.getElementById('f-date').value;
+  const name=document.getElementById('f-name').value.trim();
+  const time=document.getElementById('f-time').value;
+  const vehicle_number=document.getElementById('f-vehicle').value.trim().toUpperCase();
+  const signature=document.getElementById('f-signature').value.trim();
+  if(!date||!name||!time||!vehicle_number){toast('Please fill all required fields','error');return;}
+  const btn=document.getElementById('submitBtn');btn.disabled=true;
+  document.getElementById('submitText').innerHTML='<span class="spinner"></span> Saving...';
+  try{
+    await api('POST',TABLE,{date,name,time:ft(time),vehicle_number,signature});
+    toast('Entry saved!','success');clearForm();await fetchEntries();
+  }catch(e){toast('Error: '+e.message,'error');}
+  finally{btn.disabled=false;document.getElementById('submitText').textContent='Save Entry';}
+}
+
+function clearForm(){['f-name','f-time','f-vehicle','f-signature'].forEach(id=>document.getElementById(id).value='');setTodayDate();}
+
+function openEdit(id){
+  const e=allEntries.find(x=>x.id===id);if(!e)return;
+  document.getElementById('edit-id').value=e.id;
+  document.getElementById('edit-date').value=e.date;
+  document.getElementById('edit-name').value=e.name;
+  document.getElementById('edit-time').value=e.time;
+  document.getElementById('edit-vehicle').value=e.vehicle_number;
+  document.getElementById('edit-signature').value=e.signature||'';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal(){document.getElementById('editModal').classList.remove('open');}
+
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const data={date:document.getElementById('edit-date').value,name:document.getElementById('edit-name').value.trim(),time:document.getElementById('edit-time').value,vehicle_number:document.getElementById('edit-vehicle').value.trim().toUpperCase(),signature:document.getElementById('edit-signature').value.trim()};
+  if(!data.date||!data.name||!data.time||!data.vehicle_number){toast('Fill all required fields','error');return;}
+  try{await api('PATCH',`${TABLE}?id=eq.${id}`,data);toast('Entry updated!','success');closeModal();await fetchEntries();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this entry?'))return;
+  try{await api('DELETE',`${TABLE}?id=eq.${id}`);toast('Entry deleted','success');await fetchEntries();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+function populateReportMonths(){
+  const months=[...new Set(allEntries.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('reportMonth');const cur=sel.value;
+  sel.innerHTML='<option value="">Select Month</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+function loadReport(){
+  const month=document.getElementById('reportMonth').value;
+  const data=month?allEntries.filter(e=>e.date?.startsWith(month)):[];
+  const el=document.getElementById('reportContent');
+  if(!month){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;return;}
+  if(!data.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No entries for this month</div></div>`;return;}
+  el.innerHTML=`<div class="report-summary"><div class="rsm-item"><div class="label">Total Entries</div><div class="val" style="color:var(--primary)">${data.length}</div></div><div class="rsm-item"><div class="label">Unique Drivers</div><div class="val" style="color:var(--success)">${new Set(data.map(e=>e.name)).size}</div></div><div class="rsm-item"><div class="label">Unique Vehicles</div><div class="val" style="color:var(--warning)">${new Set(data.map(e=>e.vehicle_number)).size}</div></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Time</th><th>Vehicle</th><th>Signature</th></tr></thead><tbody>${data.map((e,i)=>`<tr><td class="sno">${i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td class="time-cell">${e.time}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td class="sig-cell">${e.signature||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function exportReport(){
+  const month=document.getElementById('reportMonth').value;
+  if(!month){toast('Select a month first','error');return;}
+  excelDown(allEntries.filter(e=>e.date?.startsWith(month)),`husk_report_${month}.xlsx`);
+}
+function exportExcel(){excelDown(filteredEntries,`husk_entries_${document.getElementById('filterMonth').value||'all'}.xlsx`);}
+
+function excelDown(data,filename){
+  const rows=data.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Time':e.time,'Vehicle Number':e.vehicle_number,'Signature':e.signature||''}));
+  const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[6,13,22,12,18,20].map(w=>({wch:w}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Husk Entries');
+  XLSX.writeFile(wb,filename);toast('Excel exported!','success');
+}
+
+function fd(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+function ft(t){if(!t)return'';const[h,m]=t.split(':');const hr=parseInt(h);return`${hr%12||12}:${m} ${hr>=12?'PM':'AM'}`;}
+function setTodayDate(){document.getElementById('f-date').value=new Date().toISOString().split('T')[0];}
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');el.textContent=msg;el.className=`show ${type}`;
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='',3000);
+}
+document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+init();
 </script>
 </body>
 </html>
