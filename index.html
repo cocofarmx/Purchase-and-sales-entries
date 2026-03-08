@@ -25,7 +25,7 @@ body{overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* LOGIN */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#1d4ed8 100%);}
+.login-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#1d4ed8 100%);z-index:999;overflow-y:auto;padding:20px;}
 .login-card{background:var(--white);border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:var(--sl2);}
 .login-logo{text-align:center;margin-bottom:28px;}
 .login-logo .mark{width:56px;height:56px;background:var(--primary);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
@@ -268,7 +268,7 @@ tbody tr:hover td{background:#fafbff;}
   /* Hamburger visible */
   .hamburger{display:flex !important;}
   /* Bottom nav visible */
-  .mobile-bottom-nav{display:block !important;}
+  .mobile-bottom-nav.visible{display:block;}
   /* Content padding - leave room for bottom nav */
   .content{padding:14px 12px 80px !important;}
   /* Forms single column */
@@ -2582,7 +2582,7 @@ function initCpDates(){
 }
 </script>
 <!-- Mobile Bottom Nav -->
-<nav class="mobile-bottom-nav" id="mobileBottomNav" style="display:none">
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
   <div class="mbn-inner">
     <button class="mbn-btn active" id="mbnHusk" onclick="switchModule('husk')" style="position:relative">
       <span class="mbn-icon">🌾</span>Husk
@@ -2683,23 +2683,7 @@ try{
   if(_link)_link.href=_url;
 }catch(e){console.warn('PWA manifest error:',e);}
 
-// ── Service Worker ──────────────────────────────────────────
-if('serviceWorker' in navigator){
-  const swCode=`
-const CACHE='cocofarmx-v1';
-const ASSETS=['./', './index.html'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
-self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./index.html')))));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
-  `.trim();
-  try{
-    const swBlob=new Blob([swCode],{type:'application/javascript'});
-    const swUrl=URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl,{scope:'./'}).then(()=>{
-      console.log('CocoFarmX SW registered');
-    }).catch(e=>console.warn('SW reg failed:',e));
-  }catch(e){console.warn('SW error:',e);}
-}
+// Service Worker not supported via blob URL
 
 // ── Install prompt (Android) ────────────────────────────────
 let _installPrompt=null;
