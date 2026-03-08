@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Husk Entries</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>CocoFarmX</title>
+<meta name="application-name" content="CocoFarmX"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="CocoFarmX"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#1e293b"/>
+<link rel="manifest" id="pwa-manifest"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
 <style>
 :root{--bg:#f5f6fa;--white:#fff;--border:#e4e7ed;--border2:#d0d5dd;--text:#111827;--muted:#6b7280;--muted2:#9ca3af;--primary:#2563eb;--pl:#eff6ff;--ph:#1d4ed8;--success:#16a34a;--sl:#f0fdf4;--danger:#dc2626;--dl:#fef2f2;--warning:#d97706;--wl:#fffbeb;--ss:0 1px 3px rgba(0,0,0,0.08);--sm:0 4px 12px rgba(0,0,0,0.08);--sl2:0 10px 30px rgba(0,0,0,0.12);--r:12px;--rs:8px;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -42,6 +49,43 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .nav-item:hover{background:var(--bg);color:var(--text);}
 .nav-item.active{background:var(--pl);color:var(--primary);}
 .nav-item .ni{width:18px;text-align:center;font-size:0.95rem;}
+.module-switcher{padding:10px 10px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.mod-btn{flex:1;padding:9px 4px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.15s;text-align:center;color:var(--muted);}
+.mod-btn.active.husk{background:#92400e;border-color:#92400e;color:#fff;}
+.mod-btn.active.cocopeat{background:#15803d;border-color:#15803d;color:#fff;}
+.mod-btn:hover:not(.active){background:var(--bg);color:var(--text);}
+.cp-tab-wrap{display:flex;gap:6px;margin-bottom:18px;}
+.cp-tab{padding:8px 20px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all 0.15s;}
+.cp-tab.active{background:#15803d;border-color:#15803d;color:#fff;}
+.cp-tab:hover:not(.active){border-color:#15803d;color:#15803d;}
+.amount-type-wrap{display:flex;gap:8px;}
+.at-btn{flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all 0.15s;text-align:center;}
+.at-btn.active.cash{background:#d97706;border-color:#d97706;color:#fff;}
+.at-btn.active.account{background:#2563eb;border-color:#2563eb;color:#fff;}
+.at-btn:hover:not(.active){background:var(--bg);}
+.total-display{background:var(--sl);border:1.5px solid #bbf7d0;border-radius:var(--rs);padding:10px 14px;font-size:1rem;font-weight:800;color:var(--success);text-align:center;}
+.cash-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:var(--wl);color:var(--warning);border:1px solid #fde68a;}
+.account-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:var(--pl);color:var(--primary);border:1px solid #bfdbfe;}
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.att-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--ss);transition:box-shadow 0.15s;}
+.att-card:hover{box-shadow:var(--sm);}
+.att-name{font-size:0.95rem;font-weight:800;margin-bottom:4px;}
+.att-desig{font-size:0.75rem;color:var(--muted);margin-bottom:12px;}
+.hours-input-wrap{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.hours-input{width:80px;padding:7px 10px;border:1.5px solid var(--border2);border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;font-weight:700;text-align:center;outline:none;}
+.hours-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+.salary-pill{background:var(--sl);color:var(--success);padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;border:1px solid #bbf7d0;}
+.absent-btn{padding:7px 14px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all 0.15s;}
+.absent-btn.active{background:var(--dl);border-color:var(--danger);color:var(--danger);}
+.att-saved{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;color:var(--success);margin-top:6px;}
+.emp-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.present-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:var(--sl);color:var(--success);border:1px solid #bbf7d0;}
+.absent-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:var(--dl);color:var(--danger);border:1px solid #fecaca;}
+.advance-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:var(--wl);color:var(--warning);border:1px solid #fde68a;}
+.att-tabs{display:flex;gap:6px;margin-bottom:18px;}
+.att-tab{padding:8px 18px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all 0.15s;}
+.att-tab.active{background:#7c3aed;border-color:#7c3aed;color:#fff;}
+.att-tab:hover:not(.active){border-color:#7c3aed;color:#7c3aed;}
 
 /* Vehicle panel in sidebar */
 .veh-panel{border-top:1px solid var(--border);padding:12px 10px;}
@@ -186,6 +230,62 @@ tbody tr:hover td{background:#fafbff;}
 @media print{.sidebar,.topbar,.table-toolbar,.pagination,.no-print{display:none!important;}.main{margin-left:0;}.content{padding:0;}.card{box-shadow:none;}}
 @media(max-width:768px){.sidebar{width:220px;}.main{margin-left:220px;}.stats-grid{grid-template-columns:repeat(2,1fr);}.charts-grid{grid-template-columns:1fr;}.content{padding:14px;}.topbar{padding:0 14px;}}
 @media(max-width:560px){.sidebar{display:none;}.main{margin-left:0;}}
+
+/* ===== MOBILE BOTTOM NAV ===== */
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);z-index:200;padding:0;safe-area-inset-bottom:env(safe-area-inset-bottom);}
+.mbn-inner{display:flex;align-items:stretch;}
+.mbn-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.6rem;font-weight:700;color:var(--muted);cursor:pointer;gap:3px;transition:color 0.15s;min-height:56px;}
+.mbn-btn.active{color:var(--primary);}
+.mbn-btn .mbn-icon{font-size:1.25rem;line-height:1;}
+.mbn-badge{position:absolute;top:4px;right:calc(50% - 16px);background:var(--danger);color:#fff;border-radius:50%;width:15px;height:15px;font-size:0.55rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+
+/* ===== HAMBURGER ===== */
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;border-radius:var(--rs);border:none;background:transparent;}
+.hamburger span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all 0.2s;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:149;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .app{flex-direction:column;}
+  .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:150;transition:left 0.25s cubic-bezier(.4,0,.2,1);width:240px !important;overflow-y:auto;}
+  .sidebar.open{left:0;}
+  .sidebar-overlay{display:block;}
+  .main{margin-left:0 !important;width:100%;}
+  .content{padding:16px 14px 80px;}
+  .topbar{padding:0 14px;height:52px;}
+  .hamburger{display:flex;}
+  .mobile-bottom-nav{display:block;}
+  .form-grid{grid-template-columns:1fr !important;}
+  .form-grid .field[style*="grid-column:span 2"]{grid-column:span 1 !important;}
+  .stat-grid{grid-template-columns:1fr 1fr !important;gap:10px;}
+  .emp-stat-grid{grid-template-columns:1fr 1fr !important;gap:10px;}
+  .report-summary{grid-template-columns:1fr 1fr !important;}
+  .att-grid{grid-template-columns:1fr !important;}
+  .table-toolbar{flex-wrap:wrap;gap:8px;}
+  .table-toolbar .ml-auto{margin-left:0;width:100%;display:flex;gap:8px;}
+  .table-toolbar .ml-auto .btn{flex:1;}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .card-header{flex-wrap:wrap;gap:8px;}
+  .card-header .flex{flex-wrap:wrap;}
+  .cp-tab-wrap{flex-wrap:wrap;}
+  .amount-type-wrap{gap:8px;}
+  .pagination{flex-wrap:wrap;gap:8px;}
+  .modal{width:calc(100vw - 24px);max-height:90vh;overflow-y:auto;}
+  .sideVehPanel{display:none !important;}
+  .veh-panel{display:none !important;}
+  .topbar-title{font-size:0.9rem;}
+  .hours-input-wrap{flex-wrap:wrap;}
+}
+@media(max-width:400px){
+  .stat-grid{grid-template-columns:1fr !important;}
+  .report-summary{grid-template-columns:1fr !important;}
+  .module-switcher{grid-template-columns:1fr 1fr;}
+}
+@media print{
+  .sidebar,.mobile-bottom-nav,.hamburger,.sidebar-overlay{display:none !important;}
+  .main{margin-left:0 !important;}
+  .content{padding:0 !important;}
+}
 </style>
 </head>
 <body>
@@ -196,7 +296,7 @@ tbody tr:hover td{background:#fafbff;}
     <div class="login-card">
       <div class="login-logo">
         <div class="mark">🌾</div>
-        <h1>Husk Entries</h1>
+        <h1>CocoFarmX</h1>
         <p>Management System — Sign in to continue</p>
       </div>
       <div class="login-err" id="loginErr">Invalid username or password</div>
@@ -220,23 +320,47 @@ tbody tr:hover td{background:#fafbff;}
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">🌾</div>
-    <div class="logo-text">Husk Entries<span>Management System</span></div>
+    <div class="logo-text">CocoFarmX<span>Management System</span></div>
+  </div>
+  <div class="module-switcher">
+    <button class="mod-btn husk active" id="modHusk" onclick="switchModule('husk')">🌾 Husk</button>
+    <button class="mod-btn cocopeat" id="modCocopeat" onclick="switchModule('cocopeat')">🥥 Cocopeat</button>
+    <button class="mod-btn" id="modAttendance" onclick="switchModule('attendance')">👷 Attendance</button>
+    <button class="mod-btn" id="modVehExp" onclick="switchModule('vehexp')">🚗 Expenses</button>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-label">Menu</div>
-    <button class="nav-item active" onclick="showPage('dashboard')"><span class="ni">📊</span>Dashboard</button>
-    <button class="nav-item" onclick="showPage('add')"><span class="ni">➕</span>Add Entry</button>
-    <button class="nav-item" onclick="showPage('entries')"><span class="ni">📋</span>All Entries</button>
-    <button class="nav-item" onclick="showPage('reports')"><span class="ni">📈</span>Monthly Report</button>
+    <div class="nav-label husk-nav">Menu</div>
+    <button class="nav-item husk-nav active" onclick="showPage('dashboard')"><span class="ni">📊</span>Dashboard</button>
+    <button class="nav-item husk-nav" onclick="showPage('add')"><span class="ni">➕</span>Add Entry</button>
+    <button class="nav-item husk-nav" onclick="showPage('entries')"><span class="ni">📋</span>All Entries</button>
+    <button class="nav-item husk-nav" onclick="showPage('reports')"><span class="ni">📈</span>Monthly Report</button>
     <div id="adminNav">
       <div class="nav-label">Admin</div>
       <button class="nav-item" onclick="showPage('vehicles')"><span class="ni">🚗</span>Manage Vehicles</button>
       <button class="nav-item" onclick="showPage('users')"><span class="ni">👥</span>Manage Users</button>
     </div>
+    <!-- Vehicle Expenses nav -->
+    <div id="vehExpNav" style="display:none">
+      <div class="nav-label">Vehicle Expenses</div>
+      <button class="nav-item active" id="vehExpNav0" onclick="switchVehExpTab(0)"><span class="ni">➕</span>Add Expense</button>
+      <button class="nav-item" id="vehExpNav1" onclick="switchVehExpTab(1)"><span class="ni">📋</span>All Expenses</button>
+      <button class="nav-item" id="vehExpNav2" onclick="switchVehExpTab(2)"><span class="ni">📊</span>Reports</button>
+      <button class="nav-item" id="vehExpNav3" onclick="switchVehExpTab(3)"><span class="ni">🚗</span>Vehicles</button>
+    </div>
+
+    <!-- Attendance sub nav - shown only when attendance module active -->
+    <div id="attNav" style="display:none">
+      <div class="nav-label">Attendance</div>
+      <button class="nav-item active" id="attNavMark" onclick="switchAttTab(0)"><span class="ni">📅</span>Mark Attendance</button>
+      <button class="nav-item" id="attNavApprove" style="display:none" onclick="switchAttTab(4)"><span class="ni">✅</span>Approvals <span id="pendingBadge" style="margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 7px;font-size:0.68rem;font-weight:800;display:none">0</span></button>
+      <button class="nav-item" id="attNavReport" onclick="switchAttTab(1)"><span class="ni">📊</span>Reports</button>
+      <button class="nav-item" id="attNavAdv" onclick="switchAttTab(2)"><span class="ni">💰</span>Advances</button>
+      <button class="nav-item" id="attNavEmp" onclick="switchAttTab(3)"><span class="ni">👷</span>Employees</button>
+    </div>
   </nav>
 
   <!-- Vehicle panel -->
-  <div class="veh-panel">
+  <div class="veh-panel" id="sideVehPanel" style="display:none">
     <div class="veh-panel-title">🚗 Registered Vehicles</div>
     <div class="veh-list" id="sideVehicleList">
       <div style="padding:8px;font-size:0.75rem;color:var(--muted2);">Loading...</div>
@@ -257,11 +381,18 @@ tbody tr:hover td{background:#fafbff;}
 
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title" id="pageTitle">Dashboard</div>
-    <div class="topbar-actions no-print">
-      <button class="btn btn-secondary btn-sm" onclick="refreshData()">↻ Refresh</button>
-      <button class="btn btn-primary btn-sm" onclick="showPage('add')">+ Add Entry</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <span id="moduleTag" style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:#fef3c7;color:#92400e;">🌾 Husk</span>
     </div>
+    <div id="adminBell" style="display:none;position:relative;cursor:pointer" onclick="showPage('attendance');switchModule('attendance');switchAttTab(4)">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🔔</div>
+      <div id="bellBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">0</div>
+    </div>
+
   </div>
   <div class="content">
 
@@ -273,10 +404,7 @@ tbody tr:hover td{background:#fafbff;}
         <div class="stat-card sc-orange"><div class="si si-o">🚗</div><div class="sv" id="statVehicles">—</div><div class="sl">Vehicles</div><div class="ss2">Registered</div></div>
         <div class="stat-card sc-purple"><div class="si si-p">📦</div><div class="sv" id="statCFT">—</div><div class="sl">Total CFT</div><div class="ss2" id="statCFTLabel">This month</div></div>
       </div>
-      <div class="charts-grid mb-3">
-        <div class="chart-card"><div class="card-header"><div class="card-title">Monthly Entries</div></div><div class="chart-body"><canvas id="chartMonthly" height="200"></canvas></div></div>
-        <div class="chart-card"><div class="card-header"><div class="card-title">Top Drivers</div></div><div class="chart-body"><canvas id="chartDrivers" height="200"></canvas></div></div>
-      </div>
+
       <div class="card">
         <div class="card-header"><div class="card-title">Recent Entries</div><button class="btn btn-ghost btn-sm" onclick="showPage('entries')">View all →</button></div>
         <div class="table-wrap">
@@ -306,6 +434,7 @@ tbody tr:hover td{background:#fafbff;}
             <div class="field"><label>Owner Name</label><input type="text" id="f-owner" readonly placeholder="Auto-filled"/></div>
             <div class="field"><label>CFT Value</label><input type="text" id="f-cft" readonly placeholder="Auto-filled"/></div>
           </div>
+          <input type="hidden" id="f-entry-type" value="husk"/>
           <div class="divider"></div>
           <div class="flex gap-2" style="justify-content:flex-end">
             <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
@@ -352,6 +481,367 @@ tbody tr:hover td{background:#fafbff;}
           </div>
         </div>
         <div id="reportContent"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div><div class="empty-sub">Choose from dropdown above</div></div></div>
+      </div>
+    </div>
+
+    <!-- COCOPEAT MODULE -->
+    <div id="page-cocopeat" class="hidden">
+      <!-- Sub tabs -->
+      <div class="cp-tab-wrap no-print">
+        <button class="cp-tab active" id="cpTabBags" onclick="switchCpTab('bags')">🛍 Bags Entry</button>
+        <button class="cp-tab" id="cpTabCft" onclick="switchCpTab('cft')">📦 CFT Entry</button>
+        <button class="cp-tab" id="cpTabReport" onclick="switchCpTab('report')">📈 Monthly Report</button>
+      </div>
+
+      <!-- BAGS ENTRY -->
+      <div id="cp-bags">
+        <div class="card" style="max-width:760px;margin-bottom:18px">
+          <div class="card-header"><div class="card-title">🛍 Add Bags Entry</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="cpb-date"/></div>
+              <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="cpb-name" placeholder="Driver name"/></div>
+              <div class="field"><label>Vehicle Number <span class="req">*</span></label><input type="text" id="cpb-vehicle" placeholder="e.g. TN33CA4439" style="text-transform:uppercase"/></div>
+              <div class="field"><label>Number of Bags <span class="req">*</span></label><input type="number" id="cpb-bags" placeholder="e.g. 100" oninput="calcBagsTotal()"/></div>
+              <div class="field"><label>Rate per Bag <span class="req">*</span></label><input type="number" id="cpb-rate" placeholder="e.g. 25" oninput="calcBagsTotal()"/></div>
+              <div class="field"><label>Total Amount</label><div class="total-display" id="cpb-total">₹ 0.00</div></div>
+              <div class="field" style="grid-column:span 2">
+                <label>Amount Type <span class="req">*</span></label>
+                <div class="amount-type-wrap">
+                  <button class="at-btn cash active" id="cpb-at-cash" onclick="setAmountType('cpb','cash')">💵 Cash</button>
+                  <button class="at-btn account" id="cpb-at-account" onclick="setAmountType('cpb','account')">🏦 Account</button>
+                </div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-secondary" onclick="clearCpBags()">Clear</button>
+              <button class="btn btn-success" id="cpbSubmitBtn" onclick="submitCpBags()"><span id="cpbSubmitText">Save Entry</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-toolbar no-print">
+            <div class="search-bar"><span>🔍</span><input type="text" id="cpbSearch" placeholder="Search name, vehicle..." oninput="filterCpBags()"/></div>
+            <select class="filter-select" id="cpbFilterMonth" onchange="filterCpBags()"><option value="">All Months</option></select>
+            <div class="ml-auto flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportCpBags()">⬇ Excel</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Date</th><th>Name</th><th>Vehicle</th><th>Bags</th><th>Rate/Bag</th><th>Total</th><th>Type</th><th class="no-print">Actions</th></tr></thead>
+              <tbody id="cpBagsBody"><tr><td colspan="9"><div class="empty-state"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination no-print">
+            <div class="page-info" id="cpbPageInfo">—</div>
+            <div class="page-btns" id="cpbPageBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CFT ENTRY -->
+      <div id="cp-cft" class="hidden">
+        <div class="card" style="max-width:760px;margin-bottom:18px">
+          <div class="card-header"><div class="card-title">📦 Add CFT Entry</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="cpc-date"/></div>
+              <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="cpc-name" placeholder="Driver name"/></div>
+              <div class="field"><label>Vehicle Number <span class="req">*</span></label><input type="text" id="cpc-vehicle" placeholder="e.g. TN33CA4439" style="text-transform:uppercase"/></div>
+              <div class="field"><label>CFT Value <span class="req">*</span></label><input type="number" id="cpc-cft" placeholder="e.g. 45" oninput="calcCftTotal()"/></div>
+              <div class="field"><label>Rate per CFT <span class="req">*</span></label><input type="number" id="cpc-rate" placeholder="e.g. 120" oninput="calcCftTotal()"/></div>
+              <div class="field"><label>Total Amount</label><div class="total-display" id="cpc-total">₹ 0.00</div></div>
+              <div class="field" style="grid-column:span 2">
+                <label>Amount Type <span class="req">*</span></label>
+                <div class="amount-type-wrap">
+                  <button class="at-btn cash active" id="cpc-at-cash" onclick="setAmountType('cpc','cash')">💵 Cash</button>
+                  <button class="at-btn account" id="cpc-at-account" onclick="setAmountType('cpc','account')">🏦 Account</button>
+                </div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-secondary" onclick="clearCpCft()">Clear</button>
+              <button class="btn btn-success" id="cpcSubmitBtn" onclick="submitCpCft()"><span id="cpcSubmitText">Save Entry</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-toolbar no-print">
+            <div class="search-bar"><span>🔍</span><input type="text" id="cpcSearch" placeholder="Search name, vehicle..." oninput="filterCpCft()"/></div>
+            <select class="filter-select" id="cpcFilterMonth" onchange="filterCpCft()"><option value="">All Months</option></select>
+            <div class="ml-auto flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportCpCft()">⬇ Excel</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Date</th><th>Name</th><th>Vehicle</th><th>CFT</th><th>Rate/CFT</th><th>Total</th><th>Type</th><th class="no-print">Actions</th></tr></thead>
+              <tbody id="cpCftBody"><tr><td colspan="9"><div class="empty-state"><div class="spinner"></div></div></td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination no-print">
+            <div class="page-info" id="cpcPageInfo">—</div>
+            <div class="page-btns" id="cpcPageBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COCOPEAT REPORT -->
+      <div id="cp-report" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📈 Cocopeat Monthly Report</div>
+            <div class="flex gap-2 no-print">
+              <select class="filter-select" id="cpReportMonth" onchange="loadCpReport()"><option value="">Select Month</option></select>
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportCpReport()">⬇ Excel</button>
+            </div>
+          </div>
+          <div id="cpReportContent"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div><div class="empty-sub">Choose from dropdown above</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE MODULE -->
+    <div id="page-attendance" class="hidden">
+      <!-- Hidden tab buttons for JS compatibility -->
+      <button id="attTab0" style="display:none"></button>
+      <button id="attTab1" style="display:none"></button>
+      <button id="attTab2" style="display:none"></button>
+      <button id="attTab3" style="display:none"></button>
+      <button id="attTab4" style="display:none"></button>
+      <!-- MARK ATTENDANCE -->
+      <div id="att-tab-0">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div class="card-title">📅 Mark Attendance</div>
+            <div class="flex gap-2 items-center">
+              <input type="date" id="attDate" style="padding:7px 12px;border:1.5px solid var(--border2);border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;outline:none;" onchange="loadAttendanceForDate()"/>
+              <button class="btn btn-primary btn-sm" id="saveAttBtn" onclick="saveAllAttendance()"><span id="saveAttText">💾 Save All</span></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">💡 Full day = 10 hrs &nbsp;|&nbsp; Salary = Hours × (Daily Wage ÷ 10) &nbsp;|&nbsp; Enter 0 or mark absent for no pay</div>
+            <div class="att-grid" id="attCardsGrid">
+              <div style="padding:30px;text-align:center;color:var(--muted2)"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="att-tab-1" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 Attendance Report</div>
+            <div class="flex gap-2 no-print">
+              <select class="filter-select" id="attReportMonth" onchange="loadAttReport()"><option value="">Select Month</option></select>
+              <select class="filter-select" id="attReportEmp" onchange="loadAttReport()"><option value="">All Employees</option></select>
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportAttReport()">⬇ Excel</button>
+            </div>
+          </div>
+          <div id="attReportContent"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div></div>
+        </div>
+      </div>
+
+      <!-- ADVANCES -->
+      <div id="att-tab-2" class="hidden">
+        <div class="card" style="max-width:680px;margin-bottom:16px">
+          <div class="card-header"><div class="card-title">💰 Add Advance</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="adv-date"/></div>
+              <div class="field"><label>Employee <span class="req">*</span></label>
+                <select id="adv-emp"><option value="">— Select Employee —</option></select>
+              </div>
+              <div class="field"><label>Amount (₹) <span class="req">*</span></label><input type="number" id="adv-amount" placeholder="e.g. 500"/></div>
+              <div class="field"><label>Note</label><input type="text" id="adv-note" placeholder="Reason (optional)"/></div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-primary" onclick="saveAdvance()">Save Advance</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Advance History</div>
+            <select class="filter-select" id="advFilterEmp" onchange="renderAdvances()"><option value="">All Employees</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Amount</th><th>Note</th><th class="no-print">Actions</th></tr></thead>
+              <tbody id="advTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPROVALS (admin only) -->
+      <div id="att-tab-4" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">✅ Pending Approvals</div>
+            <button class="btn btn-success btn-sm" onclick="approveAll()">✅ Approve All</button>
+          </div>
+          <div id="pendingAttContent">
+            <div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No pending approvals</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPLOYEES -->
+      <div id="att-tab-3" class="hidden">
+        <div class="card" style="max-width:680px;margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Add Employee</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="emp-name" placeholder="Employee name"/></div>
+              <div class="field"><label>Phone</label><input type="text" id="emp-phone" placeholder="Phone number"/></div>
+              <div class="field"><label>Designation</label><input type="text" id="emp-desig" placeholder="e.g. Driver, Helper"/></div>
+              <div class="field"><label>Daily Wage (₹) <span class="req">*</span></label><input type="number" id="emp-wage" placeholder="650" value="650"/></div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-primary" onclick="addEmployee()">Add Employee</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">All Employees</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Designation</th><th>Daily Wage</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="empTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VEHICLE EXPENSES MODULE -->
+    <div id="page-vehexp" class="hidden">
+      <button id="vehExpTab0" style="display:none"></button>
+      <button id="vehExpTab1" style="display:none"></button>
+      <button id="vehExpTab2" style="display:none"></button>
+      <button id="vehExpTab3" style="display:none"></button>
+
+      <!-- ADD EXPENSE -->
+      <div id="vehexp-tab-0">
+        <div class="card" style="max-width:760px;margin-bottom:18px">
+          <div class="card-header"><div class="card-title">➕ Add Vehicle Expense</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="ve-date"/></div>
+              <div class="field"><label>Vehicle <span class="req">*</span></label>
+                <select id="ve-vehicle"><option value="">— Select Vehicle —</option></select>
+              </div>
+              <div class="field"><label>Category <span class="req">*</span></label>
+                <select id="ve-category">
+                  <option value="">— Select Category —</option>
+                  <option value="fuel">⛽ Fuel</option>
+                  <option value="repair">🔧 Repair / Service</option>
+                  <option value="tyre">🔄 Tyre & Parts</option>
+                  <option value="other">📦 Other</option>
+                </select>
+              </div>
+              <div class="field"><label>Amount (₹) <span class="req">*</span></label><input type="number" id="ve-amount" placeholder="e.g. 1500"/></div>
+              <div class="field" style="grid-column:span 2"><label>Description</label><input type="text" id="ve-desc" placeholder="Details (optional)"/></div>
+              <div class="field" style="grid-column:span 2">
+                <label>Payment Type <span class="req">*</span></label>
+                <div class="amount-type-wrap">
+                  <button class="at-btn cash active" id="ve-at-cash" onclick="setAmountType('ve','cash')">💵 Cash</button>
+                  <button class="at-btn account" id="ve-at-account" onclick="setAmountType('ve','account')">🏦 Account</button>
+                </div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-secondary" onclick="clearVeForm()">Clear</button>
+              <button class="btn btn-primary" onclick="saveVehExp()"><span id="veSubmitText">Save Expense</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL EXPENSES -->
+      <div id="vehexp-tab-1" class="hidden">
+        <div class="card">
+          <div class="table-toolbar no-print">
+            <div class="search-bar"><span>🔍</span><input type="text" id="veSearch" placeholder="Search vehicle, description..." oninput="filterVehExp()"/></div>
+            <select class="filter-select" id="veFilterMonth" onchange="filterVehExp()"><option value="">All Months</option></select>
+            <select class="filter-select" id="veFilterCat" onchange="filterVehExp()">
+              <option value="">All Categories</option>
+              <option value="fuel">⛽ Fuel</option>
+              <option value="repair">🔧 Repair</option>
+              <option value="tyre">🔄 Tyre & Parts</option>
+              <option value="other">📦 Other</option>
+            </select>
+            <select class="filter-select" id="veFilterVeh" onchange="filterVehExp()"><option value="">All Vehicles</option></select>
+            <div class="ml-auto flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportVehExp()">⬇ Excel</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Date</th><th>Vehicle</th><th>Category</th><th>Amount</th><th>Payment</th><th>Description</th><th class="no-print">Actions</th></tr></thead>
+              <tbody id="veTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination no-print">
+            <div class="page-info" id="vePageInfo">—</div>
+            <div class="page-btns" id="vePageBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="vehexp-tab-2" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 Expense Reports</div>
+            <div class="flex gap-2 no-print">
+              <select class="filter-select" id="veReportMonth" onchange="loadVehExpReport()"><option value="">Select Month</option></select>
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportVehExpReport()">⬇ Excel</button>
+            </div>
+          </div>
+          <div id="veReportContent"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div></div>
+        </div>
+      </div>
+
+      <!-- VEHICLES -->
+      <div id="vehexp-tab-3" class="hidden">
+        <div class="card" style="max-width:680px;margin-bottom:16px">
+          <div class="card-header"><div class="card-title">🚗 Add Vehicle</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Vehicle Number <span class="req">*</span></label><input type="text" id="ev-number" placeholder="e.g. TN33CA4439" style="text-transform:uppercase"/></div>
+              <div class="field"><label>Vehicle Name</label><input type="text" id="ev-name" placeholder="e.g. Lorry, JCB"/></div>
+              <div class="field" style="grid-column:span 2"><label>Vehicle Type</label><input type="text" id="ev-type" placeholder="e.g. Truck, Tractor, Van"/></div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2" style="justify-content:flex-end">
+              <button class="btn btn-primary" onclick="addExpVehicle()">Add Vehicle</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">All Vehicles</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Vehicle Number</th><th>Name</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="evTableBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -405,7 +895,7 @@ tbody tr:hover td{background:#fafbff;}
         <div class="card-header"><div class="card-title">All Users</div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#</th><th>Username</th><th>Full Name</th><th>Role</th><th>Permissions</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="userTableBody"><tr><td colspan="6"><div class="empty-state"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
@@ -415,6 +905,60 @@ tbody tr:hover td{background:#fafbff;}
   </div>
 </div>
 </div>
+</div>
+
+<!-- Edit Permissions Modal -->
+<div class="modal-overlay" id="editPermsModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🔑 Edit Permissions</div><button class="btn btn-ghost" onclick="closeModal('editPermsModal')" style="padding:4px 8px">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ep-id"/>
+      <div id="ep-username" style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;"></div>
+      <label style="font-size:0.82rem;font-weight:700;color:var(--text);display:block;margin-bottom:10px;">Module Access</label>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:0.92rem;font-weight:600;cursor:pointer;padding:12px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);">
+          <input type="checkbox" id="ep-perm-husk" style="width:16px;height:16px;accent-color:#d97706"/>
+          <span>🌾 Husk Module</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Entries, Reports, Vehicles</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:0.92rem;font-weight:600;cursor:pointer;padding:12px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);">
+          <input type="checkbox" id="ep-perm-cocopeat" style="width:16px;height:16px;accent-color:#15803d"/>
+          <span>🥥 Cocopeat Module</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Bags, CFT, Reports</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:0.92rem;font-weight:600;cursor:pointer;padding:12px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);">
+          <input type="checkbox" id="ep-perm-attendance" style="width:16px;height:16px;accent-color:#7c3aed"/>
+          <span>👷 Attendance Module</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Mark, Submit for approval</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:0.92rem;font-weight:600;cursor:pointer;padding:12px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);">
+          <input type="checkbox" id="ep-perm-vehexp" style="width:16px;height:16px;accent-color:#0f172a"/>
+          <span>🚗 Vehicle Expenses</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Track fuel, repair, tyre expenses</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editPermsModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePermissions()">Save Permissions</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal-overlay" id="editEmpModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit Employee</div><button class="btn btn-ghost" onclick="closeModal('editEmpModal')" style="padding:4px 8px">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ee-id"/>
+      <div class="form-grid">
+        <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="ee-name"/></div>
+        <div class="field"><label>Phone</label><input type="text" id="ee-phone"/></div>
+        <div class="field"><label>Designation</label><input type="text" id="ee-desig"/></div>
+        <div class="field"><label>Daily Wage (₹) <span class="req">*</span></label><input type="number" id="ee-wage"/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editEmpModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmpEdit()">Save Changes</button>
+    </div>
+  </div>
 </div>
 
 <!-- Edit Entry Modal -->
@@ -467,6 +1011,22 @@ tbody tr:hover td{background:#fafbff;}
         <div class="field"><label>Role</label><select id="eu-role"><option value="user">User</option><option value="admin">Admin</option></select></div>
         <div class="field"><label>Status</label><select id="eu-active"><option value="true">Active</option><option value="false">Inactive</option></select></div>
       </div>
+      <div class="divider"></div>
+      <div style="font-size:0.78rem;font-weight:700;margin-bottom:10px;">Module Permissions</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;font-size:0.84rem;font-weight:600;transition:all 0.15s;" id="perm-husk-label">
+          <input type="checkbox" id="perm-husk" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;"/> 🌾 Husk
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;font-size:0.84rem;font-weight:600;transition:all 0.15s;" id="perm-cocopeat-label">
+          <input type="checkbox" id="perm-cocopeat" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;"/> 🥥 Cocopeat
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;font-size:0.84rem;font-weight:600;transition:all 0.15s;" id="perm-attendance-label">
+          <input type="checkbox" id="perm-attendance" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;"/> 👷 Attendance
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;font-size:0.84rem;font-weight:600;transition:all 0.15s;" id="perm-vehexp-label">
+          <input type="checkbox" id="perm-vehexp" style="width:16px;height:16px;accent-color:#0f172a;cursor:pointer;"/> 🚗 Vehicle Expenses
+        </label>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('editUserModal')">Cancel</button><button class="btn btn-primary" onclick="saveUserEdit()">Save</button></div>
   </div>
@@ -479,6 +1039,7 @@ const SB_URL='https://zfchxqrvzcmiirjwiftd.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmY2h4cXJ2emNtaWlyandpZnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MTM5MTksImV4cCI6MjA4MzE4OTkxOX0.xYYMInvFo6auPlqO9fiH905869uvkGELpp3Li1g3DHQ';
 
 let allEntries=[],filteredEntries=[],allVehicles=[],allUsers=[],currentPage=1,chartM=null,chartD=null;
+let currentModule='husk';
 let currentUser=null;
 const PER_PAGE=15;
 
@@ -515,7 +1076,23 @@ function startApp(){
   document.getElementById('userAvatar').textContent=(currentUser.full_name||currentUser.username).charAt(0).toUpperCase();
   if(currentUser.role!=='admin')document.getElementById('adminNav').classList.add('hidden');
   setTodayDate();
-  fetchAll();
+  initCpDates();
+  setupModuleButtons();
+  // Auto-navigate to first permitted module
+  if(currentUser?.role==='admin'||hasPermission('husk')){
+    currentModule='husk';
+    fetchAll();
+  } else if(hasPermission('cocopeat')){
+    currentModule='cocopeat';
+    fetchAll();
+    setTimeout(()=>switchModule('cocopeat'),500);
+  } else if(hasPermission('attendance')){
+    currentModule='attendance';
+    fetchAll();
+    setTimeout(()=>switchModule('attendance'),500);
+  } else {
+    fetchAll();
+  }
 }
 
 function doLogout(){
@@ -543,6 +1120,114 @@ async function fetchAll(){
 
 async function refreshData(){await fetchAll();toast('Refreshed','success');}
 
+function setupModuleButtons(){
+  const isAdmin=currentUser?.role==='admin';
+  const perms=currentUser?.permissions||{};
+  // Husk button
+  const huskBtn=document.getElementById('modHusk');
+  if(huskBtn) huskBtn.style.display=(isAdmin||perms.husk)?'':'none';
+  // Cocopeat button
+  const cpBtn=document.getElementById('modCocopeat');
+  if(cpBtn) cpBtn.style.display=(isAdmin||perms.cocopeat)?'':'none';
+  // Attendance button
+  const attBtn=document.getElementById('modAttendance');
+  if(attBtn) attBtn.style.display=(isAdmin||perms.attendance)?'':'none';
+  // Admin nav
+  const adminNav=document.getElementById('adminNav');
+  if(adminNav) adminNav.style.display=isAdmin?'':'none';
+}
+
+function hasPermission(mod){
+  if(currentUser?.role==='admin') return true;
+  const perms=currentUser?.permissions||{};
+  if(mod==='vehexp') return perms.vehexp===true;
+  return perms[mod]===true;
+}
+
+function switchModule(mod){
+  if(!hasPermission(mod)){toast('Access denied. Contact admin.','error');return;}
+  currentModule=mod;
+  document.getElementById('modHusk').className='mod-btn husk'+(mod==='husk'?' active':'');
+  document.getElementById('modCocopeat').className='mod-btn cocopeat'+(mod==='cocopeat'?' active':'');
+  const tag=document.getElementById('moduleTag');
+  tag.textContent=mod==='husk'?'🌾 Husk':'🥥 Cocopeat';
+  tag.style.background=mod==='husk'?'#fef3c7':'#dcfce7';
+  tag.style.color=mod==='husk'?'#92400e':'#15803d';
+  if(mod==='husk'){
+    document.getElementById('f-entry-type').value='husk';
+    ['page-dashboard','page-add','page-entries','page-reports'].forEach(p=>document.getElementById(p).classList.remove('hidden'));
+    ['page-cocopeat','page-vehicles','page-users','page-attendance','page-vehexp'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+    document.querySelectorAll('.husk-nav').forEach(el=>el.style.display='');
+    document.getElementById('sideVehPanel').style.display='';
+    document.getElementById('modAttendance').style.background='var(--white)';
+    document.getElementById('modAttendance').style.color='var(--muted)';
+    document.getElementById('modAttendance').style.borderColor='var(--border2)';
+    document.getElementById('attNav').style.display='none';
+    document.getElementById('vehExpNav').style.display='none';
+    document.getElementById('modVehExp').style.background='var(--white)';
+    document.getElementById('modVehExp').style.color='var(--muted)';
+    document.getElementById('modVehExp').style.borderColor='var(--border2)';
+    document.querySelectorAll('.husk-nav').forEach(el=>el.style.display='');
+    document.getElementById('adminNav').style.display='';
+    showPage('dashboard');
+  } else if(mod==='cocopeat'){
+    ['page-dashboard','page-add','page-entries','page-reports','page-vehicles','page-users','page-attendance','page-vehexp'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+    document.getElementById('page-cocopeat').classList.remove('hidden');
+    document.getElementById('pageTitle').textContent='Cocopeat';
+    document.getElementById('sideVehPanel').style.display='none';
+    document.getElementById('modAttendance').style.background='var(--white)';
+    document.getElementById('modAttendance').style.color='var(--muted)';
+    document.getElementById('modAttendance').style.borderColor='var(--border2)';
+    document.getElementById('attNav').style.display='none';
+    document.getElementById('vehExpNav').style.display='none';
+    document.getElementById('modVehExp').style.background='var(--white)';
+    document.getElementById('modVehExp').style.color='var(--muted)';
+    document.getElementById('modVehExp').style.borderColor='var(--border2)';
+    document.querySelectorAll('.husk-nav').forEach(el=>el.style.display='none');
+    document.getElementById('adminNav').style.display='none';
+    switchCpTab('bags');
+    fetchCpData();
+  } else if(mod==='vehexp'){
+    ['page-dashboard','page-add','page-entries','page-reports','page-vehicles','page-users','page-cocopeat','page-attendance'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+    document.getElementById('page-vehexp').classList.remove('hidden');
+    document.getElementById('pageTitle').textContent='Vehicle Expenses';
+    document.getElementById('sideVehPanel').style.display='none';
+    document.getElementById('modAttendance').style.background='var(--white)';
+    document.getElementById('modAttendance').style.color='var(--muted)';
+    document.getElementById('modAttendance').style.borderColor='var(--border2)';
+    document.getElementById('modVehExp').style.background='#0f172a';
+    document.getElementById('modVehExp').style.color='#fff';
+    document.getElementById('modVehExp').style.borderColor='#0f172a';
+    document.getElementById('modHusk').className='mod-btn husk';
+    document.getElementById('modCocopeat').className='mod-btn cocopeat';
+    document.getElementById('attNav').style.display='none';
+    document.getElementById('vehExpNav').style.display='';
+    document.querySelectorAll('.husk-nav').forEach(el=>el.style.display='none');
+    document.getElementById('adminNav').style.display='none';
+    switchVehExpTab(0);
+    fetchVehExpData();
+  } else if(mod==='attendance'){
+    ['page-dashboard','page-add','page-entries','page-reports','page-vehicles','page-users','page-cocopeat','page-vehexp'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+    document.getElementById('page-attendance').classList.remove('hidden');
+    document.getElementById('pageTitle').textContent='Attendance';
+    document.getElementById('sideVehPanel').style.display='none';
+    document.getElementById('modAttendance').style.background='#7c3aed';
+    document.getElementById('modAttendance').style.color='#fff';
+    document.getElementById('modAttendance').style.borderColor='#7c3aed';
+    document.getElementById('modHusk').className='mod-btn husk';
+    document.getElementById('modCocopeat').className='mod-btn cocopeat';
+    document.getElementById('attNav').style.display='';
+    document.getElementById('vehExpNav').style.display='none';
+    document.getElementById('modVehExp').style.background='var(--white)';
+    document.getElementById('modVehExp').style.color='var(--muted)';
+    document.getElementById('modVehExp').style.borderColor='var(--border2)';
+    document.querySelectorAll('.husk-nav').forEach(el=>el.style.display='none');
+    document.getElementById('adminNav').style.display='none';
+    switchAttTab(0);
+    fetchAttData();
+  }
+}
+
 // SIDEBAR VEHICLES
 function renderSideVehicles(){
   const el=document.getElementById('sideVehicleList');
@@ -561,6 +1246,8 @@ function renderVehicleSelect(){
 function showPage(page){
   const pages=['dashboard','add','entries','reports','vehicles','users'];
   pages.forEach(p=>document.getElementById('page-'+p)?.classList.toggle('hidden',p!==page));
+  // Always keep non-husk module pages hidden
+  ['page-cocopeat','page-attendance','page-vehexp'].forEach(p=>document.getElementById(p)?.classList.add('hidden'));
   document.querySelectorAll('.nav-item').forEach(el=>{
     el.classList.toggle('active',el.textContent.trim().toLowerCase().includes(page==='dashboard'?'dashboard':page==='add'?'add':page==='entries'?'all':page==='reports'?'monthly':page==='vehicles'?'vehicle':page==='users'?'user':'__'));
   });
@@ -573,30 +1260,21 @@ function showPage(page){
 // DASHBOARD
 function renderDashboard(){
   const now=new Date();
-  const tm=allEntries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const modEntries=allEntries.filter(e=>e.entry_type===currentModule);
+  const tm=modEntries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   const totalCFT=tm.reduce((s,e)=>s+(parseFloat(e.cft_value)||0),0);
-  document.getElementById('statTotal').textContent=allEntries.length;
+  document.getElementById('statTotal').textContent=modEntries.length;
   document.getElementById('statMonth').textContent=tm.length;
   document.getElementById('statMonthLabel').textContent=now.toLocaleString('default',{month:'long',year:'numeric'});
   document.getElementById('statVehicles').textContent=allVehicles.length;
   document.getElementById('statCFT').textContent=totalCFT.toFixed(1);
   document.getElementById('statCFTLabel').textContent=now.toLocaleString('default',{month:'short',year:'numeric'})+' total';
-  const recent=allEntries.slice(0,8);
+  const recent=modEntries.slice(0,8);
   document.getElementById('recentBody').innerHTML=recent.length?recent.map((e,i)=>`<tr><td class="sno">${i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td class="time-cell">${e.time}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td><span class="cft-badge">${e.cft_value||'—'}</span></td><td style="color:var(--muted);font-size:0.82rem">${e.owner_name||'—'}</td></tr>`).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No entries yet</div></div></td></tr>`;
-  renderCharts();
+  
 }
 
-function renderCharts(){
-  const mc={};allEntries.forEach(e=>{if(!e.date)return;const k=e.date.slice(0,7);mc[k]=(mc[k]||0)+1;});
-  const months=Object.keys(mc).sort().slice(-6);
-  const ml=months.map(m=>{const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('default',{month:'short',year:'2-digit'});});
-  if(chartM)chartM.destroy();
-  chartM=new Chart(document.getElementById('chartMonthly').getContext('2d'),{type:'bar',data:{labels:ml,datasets:[{label:'Entries',data:months.map(m=>mc[m]),backgroundColor:'rgba(37,99,235,0.12)',borderColor:'rgba(37,99,235,0.8)',borderWidth:2,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f3f4f6'},ticks:{stepSize:1}},x:{grid:{display:false}}}}});
-  const dc={};allEntries.forEach(e=>{if(e.name)dc[e.name]=(dc[e.name]||0)+1;});
-  const top=Object.entries(dc).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  if(chartD)chartD.destroy();
-  chartD=new Chart(document.getElementById('chartDrivers').getContext('2d'),{type:'doughnut',data:{labels:top.map(d=>d[0]),datasets:[{data:top.map(d=>d[1]),backgroundColor:['#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Plus Jakarta Sans'},padding:10}}}}});
-}
+
 
 // VEHICLE AUTO-FILL
 function onVehicleSelect(){
@@ -614,8 +1292,9 @@ function onEditVehicleSelect(){
 
 // FILTERS
 function renderFilters(){
-  const months=[...new Set(allEntries.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
-  const names=[...new Set(allEntries.map(e=>e.name).filter(Boolean))].sort();
+  const me=allEntries.filter(e=>e.entry_type===currentModule);
+  const months=[...new Set(me.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const names=[...new Set(me.map(e=>e.name).filter(Boolean))].sort();
   const ms=document.getElementById('filterMonth'),ns=document.getElementById('filterName');
   const mv=ms.value,nv=ns.value;
   ms.innerHTML='<option value="">All Months</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${mv===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
@@ -627,6 +1306,7 @@ function applyFilters(){
   const m=document.getElementById('filterMonth')?.value||'';
   const n=document.getElementById('filterName')?.value||'';
   filteredEntries=allEntries.filter(e=>{
+    if(e.entry_type!==currentModule)return false;
     if(m&&!e.date?.startsWith(m))return false;
     if(n&&e.name!==n)return false;
     if(s&&!e.name?.toLowerCase().includes(s)&&!e.vehicle_number?.toLowerCase().includes(s))return false;
@@ -677,7 +1357,8 @@ async function submitEntry(){
   const btn=document.getElementById('submitBtn');btn.disabled=true;
   document.getElementById('submitText').innerHTML='<span class="spinner"></span> Saving...';
   try{
-    await api('POST','husk_entries',{date,name,time:ft(time),vehicle_number,owner_name,cft_value:parseFloat(cft_value)||null});
+    const entry_type=document.getElementById('f-entry-type').value;
+    await api('POST','husk_entries',{date,name,time:ft(time),vehicle_number,owner_name,cft_value:parseFloat(cft_value)||null,entry_type});
     toast('Entry saved!','success');clearForm();await fetchAll();
   }catch(e){toast('Error: '+e.message,'error');}
   finally{btn.disabled=false;document.getElementById('submitText').textContent='Save Entry';}
@@ -746,7 +1427,26 @@ async function deleteVehicle(id){
 // USERS MANAGEMENT
 function renderUserTable(){
   const tbody=document.getElementById('userTableBody');if(!tbody)return;
-  tbody.innerHTML=allUsers.length?allUsers.map((u,i)=>`<tr><td class="sno">${i+1}</td><td class="name-cell">${u.username}</td><td>${u.full_name||'—'}</td><td><span class="role-badge ${u.role==='admin'?'rb-admin':'rb-user'}">${u.role}</span></td><td><span class="active-badge ${u.is_active?'ab-yes':'ab-no'}">${u.is_active?'Active':'Inactive'}</span></td><td><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="openEditUser(${u.id})">✏️</button>${u.id!==currentUser.id?`<button class="btn btn-ghost btn-sm" onclick="deleteUser(${u.id})">🗑️</button>`:''}</div></td></tr>`).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div></div></td></tr>`;
+  tbody.innerHTML=allUsers.length?allUsers.map((u,i)=>{
+    const perms=u.permissions||{};
+    const permBadges=[
+      perms.husk?'<span class="vbadge" style="font-family:inherit">🌾 Husk</span>':'',
+      perms.cocopeat?'<span class="cft-badge" style="font-family:inherit">🥥 Cocopeat</span>':'',
+      perms.attendance?'<span class="present-badge" style="font-family:inherit">👷 Attendance</span>':''
+    ].filter(Boolean).join(' ');
+    return`<tr>
+      <td class="sno">${i+1}</td>
+      <td class="name-cell">${u.username}</td>
+      <td>${u.full_name||'—'}</td>
+      <td><span class="role-badge ${u.role==='admin'?'rb-admin':'rb-user'}">${u.role}</span></td>
+      <td>${permBadges||'<span style="color:var(--muted2);font-size:0.78rem">No access</span>'}</td>
+      <td><span class="active-badge ${u.is_active?'ab-yes':'ab-no'}">${u.is_active?'Active':'Inactive'}</span></td>
+      <td><div class="flex gap-2">
+        <button class="btn btn-ghost btn-sm" onclick="openEditUser(${u.id})">✏️</button>
+        ${u.id!==currentUser.id?`<button class="btn btn-ghost btn-sm" onclick="deleteUser(${u.id})">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div></div></td></tr>`;
 }
 async function addUser(){
   const username=document.getElementById('uf-username').value.trim();
@@ -754,8 +1454,13 @@ async function addUser(){
   const password=document.getElementById('uf-password').value;
   const role=document.getElementById('uf-role').value;
   if(!username||!password){toast('Username and password required','error');return;}
-  try{await api('POST','users',{username,full_name,password,role});toast('User added!','success');['uf-username','uf-fullname','uf-password'].forEach(id=>document.getElementById(id).value='');await fetchAll();}
-  catch(e){toast('Error: '+(e.message.includes('unique')?'Username already exists':e.message),'error');}
+  const permissions=role==='admin'?{husk:true,cocopeat:true,attendance:true}:{husk:false,cocopeat:false,attendance:false};
+  try{
+    await api('POST','users',{username,full_name,password,role,permissions});
+    toast('User added!','success');
+    ['uf-username','uf-fullname','uf-password'].forEach(id=>document.getElementById(id).value='');
+    await fetchAll();
+  }catch(e){toast('Error: '+(e.message.includes('unique')?'Username already exists':e.message),'error');}
 }
 function openEditUser(id){
   const u=allUsers.find(x=>x.id===id);if(!u)return;
@@ -765,15 +1470,75 @@ function openEditUser(id){
   document.getElementById('eu-password').value='';
   document.getElementById('eu-role').value=u.role;
   document.getElementById('eu-active').value=String(u.is_active);
+  const perms=u.permissions||{};
+  document.getElementById('perm-husk').checked=!!perms.husk;
+  document.getElementById('perm-cocopeat').checked=!!perms.cocopeat;
+  document.getElementById('perm-attendance').checked=!!perms.attendance;
+  // Highlight checked labels
+  ['husk','cocopeat','attendance'].forEach(p=>{
+    const label=document.getElementById('perm-'+p+'-label');
+    if(label)label.style.borderColor=perms[p]?'var(--primary)':'var(--border2)';
+    if(label)label.style.background=perms[p]?'var(--pl)':'';
+  });
+  // Add live toggle highlight
+  ['husk','cocopeat','attendance'].forEach(p=>{
+    const cb=document.getElementById('perm-'+p);
+    const label=document.getElementById('perm-'+p+'-label');
+    if(cb)cb.onchange=()=>{
+      if(label){label.style.borderColor=cb.checked?'var(--primary)':'var(--border2)';label.style.background=cb.checked?'var(--pl)':'';}
+    };
+  });
   openModal('editUserModal');
 }
 async function saveUserEdit(){
   const id=document.getElementById('eu-id').value;
-  const data={username:document.getElementById('eu-username').value.trim(),full_name:document.getElementById('eu-fullname').value.trim(),role:document.getElementById('eu-role').value,is_active:document.getElementById('eu-active').value==='true'};
+  const permissions={
+    husk:document.getElementById('perm-husk').checked,
+    cocopeat:document.getElementById('perm-cocopeat').checked,
+    attendance:document.getElementById('perm-attendance').checked
+  };
+  const data={
+    username:document.getElementById('eu-username').value.trim(),
+    full_name:document.getElementById('eu-fullname').value.trim(),
+    role:document.getElementById('eu-role').value,
+    is_active:document.getElementById('eu-active').value==='true',
+    permissions
+  };
   const pw=document.getElementById('eu-password').value;
   if(pw)data.password=pw;
-  try{await api('PATCH','users',data,`id=eq.${id}`);toast('User updated!','success');closeModal('editUserModal');await fetchAll();}
-  catch(e){toast('Error: '+e.message,'error');}
+  try{
+    await api('PATCH','users',data,`id=eq.${id}`);
+    toast('User updated!','success');
+    closeModal('editUserModal');
+    await fetchAll();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+function openEditPermissions(id){
+  const allUsers=window._allUsers||[];
+  const u=allUsers.find(x=>x.id===id);if(!u)return;
+  const p=u.permissions||{};
+  document.getElementById('ep-id').value=id;
+  document.getElementById('ep-username').textContent='User: '+u.username+(u.full_name?' ('+u.full_name+')':'');
+  document.getElementById('ep-perm-husk').checked=!!p.husk;
+  document.getElementById('ep-perm-cocopeat').checked=!!p.cocopeat;
+  document.getElementById('ep-perm-attendance').checked=!!p.attendance;
+  document.getElementById('ep-perm-vehexp').checked=!!p.vehexp;
+  openModal('editPermsModal');
+}
+async function savePermissions(){
+  const id=document.getElementById('ep-id').value;
+  const permissions={
+    husk:document.getElementById('ep-perm-husk').checked,
+    cocopeat:document.getElementById('ep-perm-cocopeat').checked,
+    attendance:document.getElementById('ep-perm-attendance').checked,
+    vehexp:document.getElementById('ep-perm-vehexp').checked
+  };
+  try{
+    await api('PATCH','users',{permissions},`id=eq.${id}`);
+    toast('Permissions updated!','success');
+    closeModal('editPermsModal');
+    await loadUsers();
+  }catch(e){toast('Error: '+e.message,'error');}
 }
 async function deleteUser(id){
   if(!confirm('Delete this user?'))return;
@@ -783,13 +1548,13 @@ async function deleteUser(id){
 
 // REPORTS
 function populateReportMonths(){
-  const months=[...new Set(allEntries.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const months=[...new Set(allEntries.filter(e=>e.entry_type===currentModule).map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
   const sel=document.getElementById('reportMonth');const cur=sel.value;
   sel.innerHTML='<option value="">Select Month</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
 }
 function loadReport(){
   const month=document.getElementById('reportMonth').value;
-  const data=month?allEntries.filter(e=>e.date?.startsWith(month)):[];
+  const data=month?allEntries.filter(e=>e.entry_type===currentModule&&e.date?.startsWith(month)):[];
   const el=document.getElementById('reportContent');
   if(!month){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;return;}
   if(!data.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No entries for this month</div></div>`;return;}
@@ -799,9 +1564,9 @@ function loadReport(){
 function exportReport(){
   const month=document.getElementById('reportMonth').value;
   if(!month){toast('Select a month first','error');return;}
-  excelDown(allEntries.filter(e=>e.date?.startsWith(month)),`husk_report_${month}.xlsx`);
+  excelDown(allEntries.filter(e=>e.entry_type===currentModule&&e.date?.startsWith(month)),`${currentModule}_report_${month}.xlsx`);
 }
-function exportExcel(){excelDown(filteredEntries,`husk_entries_${document.getElementById('filterMonth').value||'all'}.xlsx`);}
+function exportExcel(){excelDown(filteredEntries,`${currentModule}_entries_${document.getElementById('filterMonth').value||'all'}.xlsx`);}
 function excelDown(data,filename){
   const rows=data.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Time':e.time,'Vehicle Number':e.vehicle_number,'CFT Value':e.cft_value||'','Owner Name':e.owner_name||''}));
   const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[6,13,20,12,18,10,20].map(w=>({wch:w}));
@@ -818,12 +1583,1059 @@ function setTodayDate(){const el=document.getElementById('f-date');if(el)el.valu
 let toastTimer;
 function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='',3200);}
 
+// ============================================================
+// VEHICLE EXPENSES MODULE
+// ============================================================
+let allExpVehicles=[],allVehExp=[],vehExpFiltered=[],vehExpPage=1;
+const VE_PER=15;
+const VE_CAT_LABELS={fuel:'⛽ Fuel',repair:'🔧 Repair',tyre:'🔄 Tyre & Parts',other:'📦 Other'};
+const VE_CAT_COLORS={fuel:'#d97706',repair:'#2563eb',tyre:'#15803d',other:'#6b7280'};
+
+async function fetchVehExpData(){
+  try{
+    [allExpVehicles,allVehExp]=await Promise.all([
+      api('GET','expense_vehicles',null,'is_active=eq.true&order=vehicle_number.asc&select=*'),
+      api('GET','vehicle_expenses',null,'order=date.desc,created_at.desc&select=*')
+    ]);
+    vehExpFiltered=[...allVehExp];
+    initVeDate();
+    populateVeVehicleDropdowns();
+    populateVeMonthFilters();
+    renderVehExpTable();
+    renderEvTable();
+  }catch(e){toast('Error loading vehicle expenses: '+e.message,'error');}
+}
+
+function switchVehExpTab(idx){
+  [0,1,2,3].forEach(i=>{
+    document.getElementById('vehexp-tab-'+i)?.classList.toggle('hidden',i!==idx);
+    document.getElementById('vehExpTab'+i)?.classList.toggle('active',i===idx);
+  });
+  const navMap={0:'vehExpNav0',1:'vehExpNav1',2:'vehExpNav2',3:'vehExpNav3'};
+  Object.values(navMap).forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(navMap[idx])?.classList.add('active');
+  const titles=['Add Expense','All Expenses','Reports','Vehicles'];
+  document.getElementById('pageTitle').textContent=titles[idx];
+  if(idx===2)populateVeReportMonths();
+}
+
+function populateVeVehicleDropdowns(){
+  const opts='<option value="">— Select Vehicle —</option>'+allExpVehicles.map(v=>`<option value="${v.id}|${v.vehicle_number}">${v.vehicle_number}${v.vehicle_name?' - '+v.vehicle_name:''}</option>`).join('');
+  const veSel=document.getElementById('ve-vehicle');
+  const vfSel=document.getElementById('veFilterVeh');
+  if(veSel)veSel.innerHTML=opts;
+  if(vfSel)vfSel.innerHTML='<option value="">All Vehicles</option>'+allExpVehicles.map(v=>`<option value="${v.vehicle_number}">${v.vehicle_number}${v.vehicle_name?' - '+v.vehicle_name:''}</option>`).join('');
+}
+
+function populateVeMonthFilters(){
+  const months=[...new Set(allVehExp.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('veFilterMonth');
+  if(sel)sel.innerHTML='<option value="">All Months</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+function populateVeReportMonths(){
+  const months=[...new Set(allVehExp.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('veReportMonth');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Select Month</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+// Add expense
+async function saveVehExp(){
+  const date=document.getElementById('ve-date').value;
+  const vehicleVal=document.getElementById('ve-vehicle').value;
+  const category=document.getElementById('ve-category').value;
+  const amount=parseFloat(document.getElementById('ve-amount').value);
+  const description=document.getElementById('ve-desc').value.trim();
+  const payment_type=getAmountType('ve');
+  if(!date||!vehicleVal||!category||!amount){toast('Fill all required fields','error');return;}
+  const [vehicle_id,vehicle_number]=vehicleVal.split('|');
+  const btn=document.getElementById('veSubmitText');btn.innerHTML='<span class="spinner"></span> Saving...';
+  try{
+    await api('POST','vehicle_expenses',{date,vehicle_id:parseInt(vehicle_id),vehicle_number,category,amount,description,payment_type});
+    toast('Expense saved!','success');clearVeForm();await fetchVehExpData();
+  }catch(e){toast('Error: '+e.message,'error');}
+  finally{btn.textContent='Save Expense';}
+}
+
+function clearVeForm(){
+  ['ve-amount','ve-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ve-vehicle').value='';
+  document.getElementById('ve-category').value='';
+  document.getElementById('ve-date').value=new Date().toISOString().split('T')[0];
+  setAmountType('ve','cash');
+}
+
+function initVeDate(){
+  const el=document.getElementById('ve-date');
+  if(el&&!el.value)el.value=new Date().toISOString().split('T')[0];
+}
+
+// Filter
+function filterVehExp(){
+  const s=document.getElementById('veSearch').value.toLowerCase();
+  const m=document.getElementById('veFilterMonth').value;
+  const cat=document.getElementById('veFilterCat').value;
+  const veh=document.getElementById('veFilterVeh').value;
+  vehExpFiltered=allVehExp.filter(e=>{
+    if(m&&!e.date?.startsWith(m))return false;
+    if(cat&&e.category!==cat)return false;
+    if(veh&&e.vehicle_number!==veh)return false;
+    if(s&&!e.vehicle_number?.toLowerCase().includes(s)&&!e.description?.toLowerCase().includes(s))return false;
+    return true;
+  });
+  vehExpPage=1;renderVehExpTable();
+}
+
+// Render table
+function renderVehExpTable(){
+  const start=(vehExpPage-1)*VE_PER;
+  const page=vehExpFiltered.slice(start,start+VE_PER);
+  const isAdmin=currentUser?.role==='admin';
+  document.getElementById('veTableBody').innerHTML=page.length?page.map((e,i)=>`<tr>
+    <td class="sno">${start+i+1}</td>
+    <td>${fd(e.date)}</td>
+    <td><span class="vbadge">${e.vehicle_number}</span></td>
+    <td><span style="display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:${VE_CAT_COLORS[e.category]}20;color:${VE_CAT_COLORS[e.category]};border:1px solid ${VE_CAT_COLORS[e.category]}40">${VE_CAT_LABELS[e.category]||e.category}</span></td>
+    <td style="font-weight:700;color:var(--danger)">₹${parseFloat(e.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    <td><span class="${e.payment_type==='cash'?'cash-badge':'account-badge'}">${e.payment_type==='cash'?'💵 Cash':'🏦 Account'}</span></td>
+    <td style="color:var(--muted);font-size:0.82rem">${e.description||'—'}</td>
+    <td class="no-print">${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="deleteVehExp(${e.id})">🗑️</button>`:''}</td>
+  </tr>`).join(''):`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-title">No expenses found</div></div></td></tr>`;
+  renderCpPagination('ve',vehExpFiltered.length,vehExpPage,(p)=>{vehExpPage=p;renderVehExpTable();});
+}
+
+async function deleteVehExp(id){
+  if(!confirm('Delete this expense?'))return;
+  try{await api('DELETE','vehicle_expenses',null,`id=eq.${id}`);toast('Deleted','success');await fetchVehExpData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+// REPORTS
+function loadVehExpReport(){
+  const month=document.getElementById('veReportMonth').value;
+  const el=document.getElementById('veReportContent');
+  if(!month){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;return;}
+  const data=allVehExp.filter(e=>e.date?.startsWith(month));
+  if(!data.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No expenses for this month</div></div>`;return;}
+  const fmt=n=>'₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});
+  const grandTotal=data.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  // Category summary
+  const catTotals={fuel:0,repair:0,tyre:0,other:0};
+  data.forEach(e=>catTotals[e.category]=(catTotals[e.category]||0)+parseFloat(e.amount||0));
+  // Per vehicle summary
+  const vehTotals={};
+  data.forEach(e=>{if(!vehTotals[e.vehicle_number])vehTotals[e.vehicle_number]=0;vehTotals[e.vehicle_number]+=parseFloat(e.amount||0);});
+  el.innerHTML=`
+    <div class="report-summary">
+      <div class="rsm"><div class="rl">Total Entries</div><div class="rv" style="color:var(--primary)">${data.length}</div></div>
+      <div class="rsm"><div class="rl">Total Expense</div><div class="rv" style="color:var(--danger)">${fmt(grandTotal)}</div></div>
+      <div class="rsm"><div class="rl">⛽ Fuel</div><div class="rv" style="color:#d97706">${fmt(catTotals.fuel)}</div></div>
+      <div class="rsm"><div class="rl">🔧 Repair</div><div class="rv" style="color:#2563eb">${fmt(catTotals.repair)}</div></div>
+      <div class="rsm"><div class="rl">🔄 Tyre</div><div class="rv" style="color:#15803d">${fmt(catTotals.tyre)}</div></div>
+      <div class="rsm"><div class="rl">📦 Other</div><div class="rv" style="color:#6b7280">${fmt(catTotals.other)}</div></div>
+    </div>
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Per Vehicle Summary</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Vehicle</th><th>Total Expense</th></tr></thead>
+      <tbody>${Object.entries(vehTotals).sort((a,b)=>b[1]-a[1]).map(([veh,total])=>`<tr>
+        <td><span class="vbadge">${veh}</span></td>
+        <td style="font-weight:700;color:var(--danger)">${fmt(total)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">All Expenses</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Date</th><th>Vehicle</th><th>Category</th><th>Amount</th><th>Payment</th><th>Description</th></tr></thead>
+      <tbody>${data.map((e,i)=>`<tr>
+        <td class="sno">${i+1}</td><td>${fd(e.date)}</td>
+        <td><span class="vbadge">${e.vehicle_number}</span></td>
+        <td><span style="display:inline-flex;padding:2px 9px;border-radius:20px;font-size:0.74rem;font-weight:700;background:${VE_CAT_COLORS[e.category]}20;color:${VE_CAT_COLORS[e.category]};border:1px solid ${VE_CAT_COLORS[e.category]}40">${VE_CAT_LABELS[e.category]||e.category}</span></td>
+        <td style="font-weight:700;color:var(--danger)">₹${parseFloat(e.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+        <td><span class="${e.payment_type==='cash'?'cash-badge':'account-badge'}">${e.payment_type==='cash'?'💵 Cash':'🏦 Account'}</span></td>
+        <td style="color:var(--muted);font-size:0.82rem">${e.description||'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  `;
+}
+
+function exportVehExpReport(){
+  const month=document.getElementById('veReportMonth').value;
+  if(!month){toast('Select a month first','error');return;}
+  const data=allVehExp.filter(e=>e.date?.startsWith(month));
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(data.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Vehicle':e.vehicle_number,'Category':VE_CAT_LABELS[e.category]||e.category,'Amount':e.amount,'Payment':e.payment_type,'Description':e.description||''})));
+  ws['!cols']=[6,13,15,15,12,10,25].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'Expenses');
+  XLSX.writeFile(wb,`vehicle_expenses_${month}.xlsx`);toast('Exported!','success');
+}
+
+function exportVehExp(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(vehExpFiltered.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Vehicle':e.vehicle_number,'Category':VE_CAT_LABELS[e.category]||e.category,'Amount':e.amount,'Payment':e.payment_type,'Description':e.description||''})));
+  ws['!cols']=[6,13,15,15,12,10,25].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'Expenses');
+  XLSX.writeFile(wb,'vehicle_expenses.xlsx');toast('Exported!','success');
+}
+
+// Expense Vehicles CRUD
+async function addExpVehicle(){
+  const vehicle_number=document.getElementById('ev-number').value.trim().toUpperCase();
+  const vehicle_name=document.getElementById('ev-name').value.trim();
+  const vehicle_type=document.getElementById('ev-type').value.trim();
+  if(!vehicle_number){toast('Vehicle number required','error');return;}
+  try{
+    await api('POST','expense_vehicles',{vehicle_number,vehicle_name,vehicle_type});
+    toast('Vehicle added!','success');
+    ['ev-number','ev-name','ev-type'].forEach(id=>document.getElementById(id).value='');
+    await fetchVehExpData();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function renderEvTable(){
+  const tbody=document.getElementById('evTableBody');if(!tbody)return;
+  tbody.innerHTML=allExpVehicles.length?allExpVehicles.map((v,i)=>`<tr>
+    <td class="sno">${i+1}</td>
+    <td><span class="vbadge">${v.vehicle_number}</span></td>
+    <td>${v.vehicle_name||'—'}</td>
+    <td style="color:var(--muted)">${v.vehicle_type||'—'}</td>
+    <td><span class="present-badge">Active</span></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="removeExpVehicle(${v.id})">🗑️</button></td>
+  </tr>`).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-title">No vehicles added</div></div></td></tr>`;
+}
+
+async function removeExpVehicle(id){
+  if(!confirm('Remove this vehicle?'))return;
+  try{await api('PATCH','expense_vehicles',{is_active:false},`id=eq.${id}`);toast('Vehicle removed','success');await fetchVehExpData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
 // Click outside modal to close
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+// ============================================================
+// ATTENDANCE MODULE
+// ============================================================
+let allEmployees=[],allAttendance=[],allAdvances=[],attDateState={};
+const DEFAULT_DAILY_WAGE=650;
+function getHourlyRate(emp){return ((emp.daily_wage||DEFAULT_DAILY_WAGE)/10);}
+
+async function fetchAttData(){
+  try{
+    [allEmployees,allAttendance,allAdvances]=await Promise.all([
+      api('GET','employees',null,'is_active=eq.true&order=name.asc&select=*'),
+      api('GET','attendance',null,'order=date.desc&select=*'),
+      api('GET','advances',null,'order=date.desc&select=*')
+    ]);
+    renderAttCards();populateAttFilters();renderAdvances();renderEmpTable();
+    if(currentUser?.role==='admin'){fetchNotifications();}
+    // Hide admin-only features from non-admin
+    if(currentUser?.role!=='admin'){
+      document.getElementById('attNavApprove').style.display='none';
+      document.getElementById('attNavAdv').style.display='none';
+      document.getElementById('attNavEmp').style.display='none';
+      document.getElementById('attNavReport').style.display='none';
+    } else {
+      document.getElementById('attNavApprove').style.display='';
+    }
+  }catch(e){toast('Error loading attendance: '+e.message,'error');}
+}
+
+function switchAttTab(idx){
+  [0,1,2,3,4].forEach(i=>{
+    document.getElementById('att-tab-'+i)?.classList.toggle('hidden',i!==idx);
+    document.getElementById('attTab'+i)?.classList.toggle('active',i===idx);
+  });
+  const navIds=['attNavMark',null,'attNavReport','attNavAdv','attNavEmp'];
+  // map tab idx to nav
+  const navMap={0:'attNavMark',1:'attNavReport',2:'attNavAdv',3:'attNavEmp',4:'attNavApprove'};
+  Object.values(navMap).forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  if(navMap[idx])document.getElementById(navMap[idx])?.classList.add('active');
+  const titles=['Mark Attendance','Reports','Advances','Employees','Approvals'];
+  document.getElementById('pageTitle').textContent=titles[idx]||'Attendance';
+  if(idx===1)populateAttReportFilters();
+  if(idx===2){populateAdvEmpSelect();renderAdvances();initAdvDate();}
+  if(idx===4)renderPendingApprovals();
+}
+
+// MARK ATTENDANCE
+function initAttDate(){
+  const el=document.getElementById('attDate');
+  if(el&&!el.value)el.value=new Date().toISOString().split('T')[0];
+}
+
+function renderAttCards(){
+  initAttDate();
+  const date=document.getElementById('attDate')?.value;
+  const grid=document.getElementById('attCardsGrid');
+  const isAdminUser=currentUser?.role==='admin';
+  // Update button label
+  const saveBtn=document.getElementById('saveAttText');
+  if(saveBtn)saveBtn.textContent=isAdminUser?'💾 Save All':'📤 Submit for Approval';
+  if(!allEmployees.length){
+    grid.innerHTML=`<div style="padding:30px;text-align:center;color:var(--muted2);grid-column:1/-1"><div class="empty-icon">👷</div><div>No employees found. Add employees first.</div></div>`;
+    return;
+  }
+  const existing={};
+  allAttendance.filter(a=>a.date===date&&a.status==='approved').forEach(a=>existing[a.employee_id]=a);
+
+  grid.innerHTML=allEmployees.map(emp=>{
+    const att=existing[emp.id];
+    const hrs=att?att.hours_worked:0;
+    const hrRate=getHourlyRate(emp);
+    const salary=(hrs*hrRate).toFixed(2);
+    return `<div class="att-card" id="attcard-${emp.id}" data-rate="${hrRate}">
+      <div class="att-name">${emp.name}</div>
+      <div class="att-desig">${emp.designation||'Employee'} ${emp.phone?'· '+emp.phone:''} <span style="color:var(--success);font-weight:700">₹${emp.daily_wage||DEFAULT_DAILY_WAGE}/day</span></div>
+      <div class="hours-input-wrap">
+        <input type="number" class="hours-input" id="att-hrs-${emp.id}" value="${hrs}" min="0" max="16" step="0.5" oninput="updateSalaryPill(${emp.id},${hrRate})" placeholder="hrs"/>
+        <span style="font-size:0.8rem;color:var(--muted)">hrs</span>
+        ${isAdminUser?`<span class="salary-pill" id="att-sal-${emp.id}">₹${(hrs*hrRate).toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`:`<span id="att-sal-${emp.id}" style="display:none"></span>`}
+      </div>
+      <div class="flex gap-2 items-center">
+        <button class="absent-btn ${(!att||hrs>0)?'':'active'}" id="att-absent-${emp.id}" onclick="toggleAbsent(${emp.id})">Absent</button>
+        <input type="text" style="flex:1;padding:6px 10px;border:1.5px solid var(--border2);border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;outline:none;" id="att-note-${emp.id}" placeholder="Note (optional)" value="${att?.note||''}"/>
+      </div>
+      ${att&&att.status==='approved'?`<div class="att-saved">✓ Approved</div>`:att&&att.status==='pending'?`<div style="font-size:0.72rem;font-weight:700;color:var(--warning);margin-top:6px;">⏳ Pending Approval</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function updateSalaryPill(empId, rate){
+  const hrs=parseFloat(document.getElementById('att-hrs-'+empId).value)||0;
+  const r=rate||parseFloat(document.getElementById('attcard-'+empId)?.dataset?.rate)||65;
+  document.getElementById('att-sal-'+empId).textContent='₹'+(hrs*r).toLocaleString('en-IN',{minimumFractionDigits:2});
+  if(hrs>0){document.getElementById('att-absent-'+empId).classList.remove('active');}
+}
+
+function toggleAbsent(empId){
+  const btn=document.getElementById('att-absent-'+empId);
+  const hrsInput=document.getElementById('att-hrs-'+empId);
+  const isAbsent=btn.classList.contains('active');
+  if(isAbsent){btn.classList.remove('active');hrsInput.value=0;updateSalaryPill(empId);}
+  else{btn.classList.add('active');hrsInput.value=0;updateSalaryPill(empId);}
+}
+
+function loadAttendanceForDate(){renderAttCards();}
+
+async function saveAllAttendance(){
+  const date=document.getElementById('attDate').value;
+  if(!date){toast('Select a date first','error');return;}
+  const isAdmin=currentUser?.role==='admin';
+  const status=isAdmin?'approved':'pending';
+  const btn=document.getElementById('saveAttText');
+  btn.innerHTML='<span class="spinner"></span> Saving...';
+  let saved=0,errors=0;
+  const pendingEntries=[];
+  for(const emp of allEmployees){
+    const hrsEl=document.getElementById('att-hrs-'+emp.id);
+    const noteEl=document.getElementById('att-note-'+emp.id);
+    const absentBtn=document.getElementById('att-absent-'+emp.id);
+    if(!hrsEl)continue;
+    const hours_worked=parseFloat(hrsEl.value)||0;
+    const note=noteEl?.value||'';
+    const isAbsent=absentBtn?.classList.contains('active')||false;
+    if(!isAbsent&&hours_worked===0)continue;
+    try{
+      const existing=allAttendance.find(a=>a.employee_id===emp.id&&a.date===date);
+      if(existing){
+        await api('PATCH','attendance',{hours_worked,note,employee_name:emp.name,status,submitted_by:currentUser.username},`id=eq.${existing.id}`);
+      } else {
+        await api('POST','attendance',{employee_id:emp.id,employee_name:emp.name,date,hours_worked,note,status,submitted_by:currentUser.username});
+      }
+      if(!isAdmin)pendingEntries.push(emp.name);
+      saved++;
+    }catch(e){errors++;}
+  }
+  // Create notification for admin if supervisor submitted
+  if(!isAdmin&&pendingEntries.length>0){
+    try{
+      await api('POST','notifications',{
+        type:'attendance_pending',
+        message:`${currentUser.full_name||currentUser.username} submitted attendance for ${date} (${pendingEntries.length} employees)`,
+        data:JSON.stringify({date,submitted_by:currentUser.username,employees:pendingEntries}),
+        is_read:false
+      });
+    }catch(e){}
+  }
+  await fetchAttData();
+  if(!isAdmin)await fetchNotifications();
+  btn.textContent=isAdmin?'💾 Save All':'📤 Submit for Approval';
+  toast(isAdmin?`Saved ${saved} records`:`Submitted ${saved} entries for admin approval`,errors?'error':'success');
+}
+
+// EMPLOYEE MANAGEMENT
+async function addEmployee(){
+  const name=document.getElementById('emp-name').value.trim();
+  const phone=document.getElementById('emp-phone').value.trim();
+  const designation=document.getElementById('emp-desig').value.trim();
+  const daily_wage=parseFloat(document.getElementById('emp-wage').value)||650;
+  if(!name){toast('Name required','error');return;}
+  try{
+    await api('POST','employees',{name,phone,designation,daily_wage});
+    toast('Employee added!','success');
+    ['emp-name','emp-phone','emp-desig'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('emp-wage').value='650';
+    await fetchAttData();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function renderEmpTable(){
+  const tbody=document.getElementById('empTableBody');if(!tbody)return;
+  tbody.innerHTML=allEmployees.length?allEmployees.map((e,i)=>`<tr>
+    <td class="sno">${i+1}</td>
+    <td class="name-cell">${e.name}</td>
+    <td style="color:var(--muted)">${e.phone||'—'}</td>
+    <td style="color:var(--muted)">${e.designation||'—'}</td>
+    <td><span class="cft-badge">₹${e.daily_wage||650}/day</span></td>
+    <td><span class="present-badge">Active</span></td>
+    <td><div class="flex gap-2">
+      <button class="btn btn-ghost btn-sm" onclick="openEditEmp(${e.id})">✏️</button>
+      <button class="btn btn-ghost btn-sm" onclick="deactivateEmployee(${e.id})">🗑️</button>
+    </div></td>
+  </tr>`).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👷</div><div class="empty-title">No employees</div></div></td></tr>`;
+}
+
+async function deactivateEmployee(id){
+  if(!confirm('Remove this employee?'))return;
+  try{await api('PATCH','employees',{is_active:false},`id=eq.${id}`);toast('Employee removed','success');await fetchAttData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+function openEditEmp(id){
+  const e=allEmployees.find(x=>x.id===id);if(!e)return;
+  document.getElementById('ee-id').value=e.id;
+  document.getElementById('ee-name').value=e.name;
+  document.getElementById('ee-phone').value=e.phone||'';
+  document.getElementById('ee-desig').value=e.designation||'';
+  document.getElementById('ee-wage').value=e.daily_wage||650;
+  openModal('editEmpModal');
+}
+async function saveEmpEdit(){
+  const id=document.getElementById('ee-id').value;
+  const name=document.getElementById('ee-name').value.trim();
+  const daily_wage=parseFloat(document.getElementById('ee-wage').value)||650;
+  if(!name){toast('Name required','error');return;}
+  const data={name,phone:document.getElementById('ee-phone').value.trim(),designation:document.getElementById('ee-desig').value.trim(),daily_wage};
+  try{
+    await api('PATCH','employees',data,`id=eq.${id}`);
+    toast('Employee updated!','success');closeModal('editEmpModal');await fetchAttData();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+// ADVANCES
+function populateAdvEmpSelect(){
+  const sel=document.getElementById('adv-emp');
+  const fSel=document.getElementById('advFilterEmp');
+  const opts='<option value="">— Select Employee —</option>'+allEmployees.map(e=>`<option value="${e.id}|${e.name}">${e.name}</option>`).join('');
+  const fOpts='<option value="">All Employees</option>'+allEmployees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  if(sel)sel.innerHTML=opts;
+  if(fSel)fSel.innerHTML=fOpts;
+}
+
+async function saveAdvance(){
+  const date=document.getElementById('adv-date').value;
+  const empVal=document.getElementById('adv-emp').value;
+  const amount=parseFloat(document.getElementById('adv-amount').value);
+  const note=document.getElementById('adv-note').value.trim();
+  if(!date||!empVal||!amount){toast('Fill all required fields','error');return;}
+  const [employee_id,employee_name]=empVal.split('|');
+  try{
+    await api('POST','advances',{date,employee_id:parseInt(employee_id),employee_name,amount,note});
+    toast('Advance saved!','success');
+    ['adv-amount','adv-note'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('adv-emp').value='';
+    await fetchAttData();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function renderAdvances(){
+  const tbody=document.getElementById('advTableBody');if(!tbody)return;
+  const filterEmpId=document.getElementById('advFilterEmp')?.value||'';
+  let data=allAdvances;
+  if(filterEmpId)data=data.filter(a=>String(a.employee_id)===filterEmpId);
+  tbody.innerHTML=data.length?data.map((a,i)=>`<tr>
+    <td class="sno">${i+1}</td>
+    <td>${fd(a.date)}</td>
+    <td class="name-cell">${a.employee_name}</td>
+    <td style="font-weight:700;color:var(--warning)">₹${parseFloat(a.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
+    <td class="no-print"><button class="btn btn-ghost btn-sm" onclick="deleteAdvance(${a.id})">🗑️</button></td>
+  </tr>`).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No advances</div></div></td></tr>`;
+}
+
+async function deleteAdvance(id){
+  if(!confirm('Delete this advance?'))return;
+  try{await api('DELETE','advances',null,`id=eq.${id}`);toast('Deleted','success');await fetchAttData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+// REPORTS
+function populateAttFilters(){
+  const months=[...new Set(allAttendance.map(a=>a.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('attReportMonth');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Select Month</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+function populateAttReportFilters(){
+  populateAttFilters();
+  const empSel=document.getElementById('attReportEmp');if(!empSel)return;
+  const cur=empSel.value;
+  empSel.innerHTML='<option value="">All Employees</option>'+allEmployees.map(e=>`<option value="${e.id}" ${cur===String(e.id)?'selected':''}>${e.name}</option>`).join('');
+}
+
+function loadAttReport(){
+  const month=document.getElementById('attReportMonth').value;
+  const empId=document.getElementById('attReportEmp').value;
+  const el=document.getElementById('attReportContent');
+  if(!month){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;return;}
+  let attData=allAttendance.filter(a=>a.date?.startsWith(month)&&a.status==='approved');
+  if(empId)attData=attData.filter(a=>String(a.employee_id)===empId);
+  let advData=allAdvances.filter(a=>a.date?.startsWith(month));
+  if(empId)advData=advData.filter(a=>String(a.employee_id)===empId);
+  if(!attData.length&&!advData.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No data for this month</div></div>`;return;}
+
+  // Per employee summary
+  const empMap={};
+  attData.forEach(a=>{
+    if(!empMap[a.employee_id])empMap[a.employee_id]={name:a.employee_name,totalHrs:0,totalSalary:0,days:0};
+    empMap[a.employee_id].totalHrs+=parseFloat(a.hours_worked||0);
+    empMap[a.employee_id].totalSalary+=parseFloat(a.salary_earned||0);
+    empMap[a.employee_id].days+=1;
+  });
+  advData.forEach(a=>{
+    if(!empMap[a.employee_id])empMap[a.employee_id]={name:a.employee_name,totalHrs:0,totalSalary:0,days:0};
+    empMap[a.employee_id].advance=(empMap[a.employee_id].advance||0)+parseFloat(a.amount||0);
+  });
+
+  const grandSalary=Object.values(empMap).reduce((s,e)=>s+e.totalSalary,0);
+  const grandAdv=Object.values(empMap).reduce((s,e)=>s+(e.advance||0),0);
+  const fmt=n=>'₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});
+
+  el.innerHTML=`
+    <div class="report-summary">
+      <div class="rsm"><div class="rl">Total Days Data</div><div class="rv" style="color:var(--primary)">${[...new Set(attData.map(a=>a.date))].length}</div></div>
+      <div class="rsm"><div class="rl">Total Salary</div><div class="rv" style="color:var(--success)">${fmt(grandSalary)}</div></div>
+      <div class="rsm"><div class="rl">Total Advances</div><div class="rv" style="color:var(--warning)">${fmt(grandAdv)}</div></div>
+      <div class="rsm"><div class="rl">Net Payable</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary-grandAdv)}</div></div>
+    </div>
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Employee Summary</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Employee</th><th>Days</th><th>Total Hrs</th><th>Salary Earned</th><th>Advances</th><th>Net Payable</th></tr></thead>
+        <tbody>${Object.entries(empMap).map(([id,e],i)=>`<tr>
+          <td class="sno">${i+1}</td>
+          <td class="name-cell">${e.name}</td>
+          <td style="font-weight:600">${e.days}</td>
+          <td><span class="cft-badge">${e.totalHrs.toFixed(1)} hrs</span></td>
+          <td style="font-weight:700;color:var(--success)">${fmt(e.totalSalary)}</td>
+          <td style="color:var(--warning);font-weight:700">${fmt(e.advance||0)}</td>
+          <td style="font-weight:800;color:#7c3aed">${fmt(e.totalSalary-(e.advance||0))}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    ${attData.length?`<div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Daily Attendance Detail</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Hours</th><th>Salary</th><th>Note</th></tr></thead>
+      <tbody>${attData.map((a,i)=>`<tr>
+        <td class="sno">${i+1}</td><td>${fd(a.date)}</td>
+        <td class="name-cell">${a.employee_name}</td>
+        <td>${parseFloat(a.hours_worked).toFixed(1)} hrs</td>
+        <td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>
+        <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:''}
+  `;
+}
+
+function exportAttReport(){
+  const month=document.getElementById('attReportMonth').value;
+  if(!month){toast('Select a month first','error');return;}
+  const empId=document.getElementById('attReportEmp').value;
+  let attData=allAttendance.filter(a=>a.date?.startsWith(month));
+  if(empId)attData=attData.filter(a=>String(a.employee_id)===empId);
+  let advData=allAdvances.filter(a=>a.date?.startsWith(month));
+  if(empId)advData=advData.filter(a=>String(a.employee_id)===empId);
+  const wb=XLSX.utils.book_new();
+  if(attData.length){
+    const ws=XLSX.utils.json_to_sheet(attData.map((a,i)=>({'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Hours Worked':a.hours_worked,'Salary Earned':a.salary_earned,'Note':a.note||''})));
+    ws['!cols']=[6,13,20,12,14,20].map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb,ws,'Attendance');
+  }
+  if(advData.length){
+    const ws=XLSX.utils.json_to_sheet(advData.map((a,i)=>({'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Advance Amount':a.amount,'Note':a.note||''})));
+    ws['!cols']=[6,13,20,14,20].map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb,ws,'Advances');
+  }
+  XLSX.writeFile(wb,`attendance_${month}.xlsx`);toast('Exported!','success');
+}
+
+// Init advance date
+function initAdvDate(){
+  const el=document.getElementById('adv-date');
+  if(el&&!el.value)el.value=new Date().toISOString().split('T')[0];
+}
+
+// PERMISSIONS
+function applyPermissions(){
+  const perms=currentUser?.permissions||{};
+  const isAdmin=currentUser?.role==='admin';
+  const husk=isAdmin||perms.husk;
+  const cocopeat=isAdmin||perms.cocopeat;
+  const attendance=isAdmin||perms.attendance;
+  const vehexp=isAdmin||perms.vehexp;
+  document.getElementById('modHusk').style.display=husk?'':'none';
+  document.getElementById('modCocopeat').style.display=cocopeat?'':'none';
+  document.getElementById('modAttendance').style.display=attendance?'':'none';
+  document.getElementById('modVehExp').style.display=vehexp?'':'none';
+  document.getElementById('adminNav').style.display=isAdmin?'':'none';
+}
+
+// NOTIFICATIONS
+let allNotifications=[];
+async function fetchNotifications(){
+  if(currentUser?.role!=='admin')return;
+  try{
+    allNotifications=await api('GET','notifications',null,'is_read=eq.false&order=created_at.desc&select=*');
+    const pendingAtt=allAttendance.filter(a=>a.status==='pending').length;
+    const count=pendingAtt;
+    const bell=document.getElementById('adminBell');
+    const badge=document.getElementById('bellBadge');
+    const pendingBadge=document.getElementById('pendingBadge');
+    const navApprove=document.getElementById('attNavApprove');
+    if(bell)bell.style.display=count>0?'':'none';
+    if(badge){badge.textContent=count;badge.style.display=count>0?'flex':'none';}
+    if(pendingBadge){pendingBadge.textContent=count;pendingBadge.style.display=count>0?'':'none';}
+    if(navApprove)navApprove.style.display=currentUser?.role==='admin'?'':'none';
+  }catch(e){}
+}
+
+// PENDING APPROVALS
+function renderPendingApprovals(){
+  const pending=allAttendance.filter(a=>a.status==='pending');
+  const el=document.getElementById('pendingAttContent');if(!el)return;
+  if(!pending.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No pending approvals</div><div class="empty-sub">All attendance entries are approved</div></div>`;
+    return;
+  }
+  // Group by date + submitted_by
+  const groups={};
+  pending.forEach(a=>{
+    const key=`${a.date}__${a.submitted_by||'unknown'}`;
+    if(!groups[key])groups[key]={date:a.date,submitted_by:a.submitted_by,entries:[]};
+    groups[key].entries.push(a);
+  });
+  el.innerHTML=Object.entries(groups).map(([key,g])=>`
+    <div style="border-bottom:1px solid var(--border);padding:16px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-weight:700;font-size:0.92rem;">📅 ${fd(g.date)}</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">Submitted by: <b>${g.submitted_by||'unknown'}</b> · ${g.entries.length} employees</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-success btn-sm" onclick="approveGroup('${g.date}','${g.submitted_by}')">✅ Approve</button>
+          <button class="btn btn-sm" style="background:var(--dl);color:var(--danger);border:1px solid #fecaca;" onclick="rejectGroup('${g.date}','${g.submitted_by}')">✕ Reject</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Employee</th><th>Hours</th><th>Salary</th><th>Note</th></tr></thead>
+          <tbody>${g.entries.map(a=>{
+            const emp=allEmployees.find(e=>e.id===a.employee_id);
+            const hrRate=emp?getHourlyRate(emp):65;
+            const sal=(parseFloat(a.hours_worked||0)*hrRate).toFixed(2);
+            return`<tr>
+              <td class="name-cell">${a.employee_name}</td>
+              <td>${a.hours_worked} hrs</td>
+              <td style="color:var(--success);font-weight:700">₹${parseFloat(sal).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+              <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approveGroup(date, submitted_by){
+  const pending=allAttendance.filter(a=>a.status==='pending'&&a.date===date&&a.submitted_by===submitted_by);
+  let done=0;
+  for(const a of pending){
+    try{
+      await api('PATCH','attendance',{status:'approved',approved_by:currentUser.username,approved_at:new Date().toISOString()},`id=eq.${a.id}`);
+      done++;
+    }catch(e){}
+  }
+  // Mark notifications as read
+  try{await api('PATCH','notifications',{is_read:true},`type=eq.attendance_pending&is_read=eq.false`);}catch(e){}
+  toast(`Approved ${done} entries!`,'success');
+  await fetchAttData();await fetchNotifications();renderPendingApprovals();
+}
+
+async function rejectGroup(date, submitted_by){
+  if(!confirm('Reject these entries? They will be deleted.'))return;
+  const pending=allAttendance.filter(a=>a.status==='pending'&&a.date===date&&a.submitted_by===submitted_by);
+  for(const a of pending){
+    try{await api('DELETE','attendance',null,`id=eq.${a.id}`);}catch(e){}
+  }
+  toast('Entries rejected and removed','success');
+  await fetchAttData();await fetchNotifications();renderPendingApprovals();
+}
+
+async function approveAll(){
+  const pending=allAttendance.filter(a=>a.status==='pending');
+  if(!pending.length){toast('No pending entries','error');return;}
+  for(const a of pending){
+    try{await api('PATCH','attendance',{status:'approved',approved_by:currentUser.username,approved_at:new Date().toISOString()},`id=eq.${a.id}`);}catch(e){}
+  }
+  try{await api('PATCH','notifications',{is_read:true},`type=eq.attendance_pending&is_read=eq.false`);}catch(e){}
+  toast(`All ${pending.length} entries approved!`,'success');
+  await fetchAttData();await fetchNotifications();renderPendingApprovals();
+}
 
 // Check session on load
 const saved=sessionStorage.getItem('huskerUser');
 if(saved){currentUser=JSON.parse(saved);startApp();}
+
+// ============================================================
+// COCOPEAT MODULE
+// ============================================================
+let cpBagsAll=[],cpCftAll=[],cpBagsFiltered=[],cpCftFiltered=[],cpBagsPage=1,cpCftPage=1;
+const CP_PER=15;
+
+async function fetchCpData(){
+  try{
+    [cpBagsAll,cpCftAll]=await Promise.all([
+      api('GET','cocopeat_bags',null,'order=date.desc,created_at.desc&select=*'),
+      api('GET','cocopeat_cft',null,'order=date.desc,created_at.desc&select=*')
+    ]);
+    cpBagsFiltered=[...cpBagsAll];
+    cpCftFiltered=[...cpCftAll];
+    renderCpBags();renderCpCft();populateCpFilters();
+  }catch(e){toast('Error loading cocopeat data: '+e.message,'error');}
+}
+
+function switchCpTab(tab){
+  ['bags','cft','report'].forEach(t=>{
+    document.getElementById('cp-'+t).classList.toggle('hidden',t!==tab);
+    document.getElementById('cpTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+  });
+  if(tab==='report')populateCpReportMonths();
+}
+
+// Amount type toggle
+function setAmountType(prefix,type){
+  document.getElementById(prefix+'-at-cash').className='at-btn cash'+(type==='cash'?' active':'');
+  document.getElementById(prefix+'-at-account').className='at-btn account'+(type==='account'?' active':'');
+  document.getElementById(prefix+'-at-cash').dataset.selected=type==='cash'?'1':'0';
+  document.getElementById(prefix+'-at-account').dataset.selected=type==='account'?'1':'0';
+}
+function getAmountType(prefix){
+  return document.getElementById(prefix+'-at-account').classList.contains('active')?'account':'cash';
+}
+
+// Calc totals
+function calcBagsTotal(){
+  const b=parseFloat(document.getElementById('cpb-bags').value)||0;
+  const r=parseFloat(document.getElementById('cpb-rate').value)||0;
+  document.getElementById('cpb-total').textContent='₹ '+(b*r).toLocaleString('en-IN',{minimumFractionDigits:2});
+}
+function calcCftTotal(){
+  const c=parseFloat(document.getElementById('cpc-cft').value)||0;
+  const r=parseFloat(document.getElementById('cpc-rate').value)||0;
+  document.getElementById('cpc-total').textContent='₹ '+(c*r).toLocaleString('en-IN',{minimumFractionDigits:2});
+}
+
+// Submit bags
+async function submitCpBags(){
+  const date=document.getElementById('cpb-date').value;
+  const name=document.getElementById('cpb-name').value.trim();
+  const vehicle_number=document.getElementById('cpb-vehicle').value.trim().toUpperCase();
+  const num_bags=parseInt(document.getElementById('cpb-bags').value);
+  const rate_per_bag=parseFloat(document.getElementById('cpb-rate').value);
+  const amount_type=getAmountType('cpb');
+  if(!date||!name||!vehicle_number||!num_bags||!rate_per_bag){toast('Fill all required fields','error');return;}
+  const btn=document.getElementById('cpbSubmitBtn');btn.disabled=true;
+  document.getElementById('cpbSubmitText').innerHTML='<span class="spinner"></span> Saving...';
+  try{
+    await api('POST','cocopeat_bags',{date,name,vehicle_number,num_bags,rate_per_bag,amount_type});
+    toast('Bags entry saved!','success');clearCpBags();await fetchCpData();
+  }catch(e){toast('Error: '+e.message,'error');}
+  finally{btn.disabled=false;document.getElementById('cpbSubmitText').textContent='Save Entry';}
+}
+
+// Submit CFT
+async function submitCpCft(){
+  const date=document.getElementById('cpc-date').value;
+  const name=document.getElementById('cpc-name').value.trim();
+  const vehicle_number=document.getElementById('cpc-vehicle').value.trim().toUpperCase();
+  const cft_value=parseFloat(document.getElementById('cpc-cft').value);
+  const rate_per_cft=parseFloat(document.getElementById('cpc-rate').value);
+  const amount_type=getAmountType('cpc');
+  if(!date||!name||!vehicle_number||!cft_value||!rate_per_cft){toast('Fill all required fields','error');return;}
+  const btn=document.getElementById('cpcSubmitBtn');btn.disabled=true;
+  document.getElementById('cpcSubmitText').innerHTML='<span class="spinner"></span> Saving...';
+  try{
+    await api('POST','cocopeat_cft',{date,name,vehicle_number,cft_value,rate_per_cft,amount_type});
+    toast('CFT entry saved!','success');clearCpCft();await fetchCpData();
+  }catch(e){toast('Error: '+e.message,'error');}
+  finally{btn.disabled=false;document.getElementById('cpcSubmitText').textContent='Save Entry';}
+}
+
+function clearCpBags(){['cpb-name','cpb-vehicle','cpb-bags','cpb-rate'].forEach(id=>document.getElementById(id).value='');document.getElementById('cpb-total').textContent='₹ 0.00';document.getElementById('cpb-date').value=new Date().toISOString().split('T')[0];setAmountType('cpb','cash');}
+function clearCpCft(){['cpc-name','cpc-vehicle','cpc-cft','cpc-rate'].forEach(id=>document.getElementById(id).value='');document.getElementById('cpc-total').textContent='₹ 0.00';document.getElementById('cpc-date').value=new Date().toISOString().split('T')[0];setAmountType('cpc','cash');}
+
+// Render tables
+function renderCpBags(){
+  const start=(cpBagsPage-1)*CP_PER;
+  const page=cpBagsFiltered.slice(start,start+CP_PER);
+  const isAdmin=currentUser?.role==='admin';
+  document.getElementById('cpBagsBody').innerHTML=page.length?page.map((e,i)=>`<tr>
+    <td class="sno">${start+i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td>
+    <td><span class="vbadge">${e.vehicle_number}</span></td>
+    <td style="font-weight:700">${e.num_bags}</td>
+    <td>₹${parseFloat(e.rate_per_bag).toFixed(2)}</td>
+    <td style="font-weight:700;color:var(--success)">₹${parseFloat(e.total_amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    <td><span class="${e.amount_type==='cash'?'cash-badge':'account-badge'}">${e.amount_type==='cash'?'💵 Cash':'🏦 Account'}</span></td>
+    <td class="no-print"><div class="flex gap-2">
+      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="deleteCpBags(${e.id})">🗑️</button>`:''}
+    </div></td></tr>`).join(''):`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🛍</div><div class="empty-title">No bag entries</div></div></td></tr>`;
+  renderCpPagination('cpb',cpBagsFiltered.length,cpBagsPage,(p)=>{cpBagsPage=p;renderCpBags();});
+}
+
+function renderCpCft(){
+  const start=(cpCftPage-1)*CP_PER;
+  const page=cpCftFiltered.slice(start,start+CP_PER);
+  const isAdmin=currentUser?.role==='admin';
+  document.getElementById('cpCftBody').innerHTML=page.length?page.map((e,i)=>`<tr>
+    <td class="sno">${start+i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td>
+    <td><span class="vbadge">${e.vehicle_number}</span></td>
+    <td><span class="cft-badge">${e.cft_value}</span></td>
+    <td>₹${parseFloat(e.rate_per_cft).toFixed(2)}</td>
+    <td style="font-weight:700;color:var(--success)">₹${parseFloat(e.total_amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    <td><span class="${e.amount_type==='cash'?'cash-badge':'account-badge'}">${e.amount_type==='cash'?'💵 Cash':'🏦 Account'}</span></td>
+    <td class="no-print"><div class="flex gap-2">
+      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="deleteCpCft(${e.id})">🗑️</button>`:''}
+    </div></td></tr>`).join(''):`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No CFT entries</div></div></td></tr>`;
+  renderCpPagination('cpc',cpCftFiltered.length,cpCftPage,(p)=>{cpCftPage=p;renderCpCft();});
+}
+
+function renderCpPagination(prefix,total,page,cb){
+  const tp=Math.ceil(total/CP_PER);
+  const s=Math.min((page-1)*CP_PER+1,total),e=Math.min(page*CP_PER,total);
+  document.getElementById(prefix+'PageInfo').textContent=total?`Showing ${s}–${e} of ${total}`:'0 entries';
+  const pb=document.getElementById(prefix+'PageBtns');
+  if(tp<=1){pb.innerHTML='';return;}
+  let h=`<button class="page-btn" onclick="(${cb.toString()})(${page-1})" ${page===1?'disabled':''}>‹</button>`;
+  for(let p=1;p<=tp;p++){if(p===1||p===tp||Math.abs(p-page)<=1)h+=`<button class="page-btn ${p===page?'active':''}" onclick="(${cb.toString()})(${p})">${p}</button>`;else if(Math.abs(p-page)===2)h+=`<span class="page-btn" style="border:none;cursor:default">…</span>`;}
+  h+=`<button class="page-btn" onclick="(${cb.toString()})(${page+1})" ${page===tp?'disabled':''}>›</button>`;
+  pb.innerHTML=h;
+}
+
+// Filters
+function populateCpFilters(){
+  const bMonths=[...new Set(cpBagsAll.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const cMonths=[...new Set(cpCftAll.map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const bSel=document.getElementById('cpbFilterMonth');
+  const cSel=document.getElementById('cpcFilterMonth');
+  bSel.innerHTML='<option value="">All Months</option>'+bMonths.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+  cSel.innerHTML='<option value="">All Months</option>'+cMonths.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+function filterCpBags(){
+  const s=document.getElementById('cpbSearch').value.toLowerCase();
+  const m=document.getElementById('cpbFilterMonth').value;
+  cpBagsFiltered=cpBagsAll.filter(e=>{
+    if(m&&!e.date?.startsWith(m))return false;
+    if(s&&!e.name?.toLowerCase().includes(s)&&!e.vehicle_number?.toLowerCase().includes(s))return false;
+    return true;
+  });
+  cpBagsPage=1;renderCpBags();
+}
+function filterCpCft(){
+  const s=document.getElementById('cpcSearch').value.toLowerCase();
+  const m=document.getElementById('cpcFilterMonth').value;
+  cpCftFiltered=cpCftAll.filter(e=>{
+    if(m&&!e.date?.startsWith(m))return false;
+    if(s&&!e.name?.toLowerCase().includes(s)&&!e.vehicle_number?.toLowerCase().includes(s))return false;
+    return true;
+  });
+  cpCftPage=1;renderCpCft();
+}
+
+// Delete
+async function deleteCpBags(id){
+  if(!confirm('Delete this entry?'))return;
+  try{await api('DELETE','cocopeat_bags',null,`id=eq.${id}`);toast('Deleted','success');await fetchCpData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+async function deleteCpCft(id){
+  if(!confirm('Delete this entry?'))return;
+  try{await api('DELETE','cocopeat_cft',null,`id=eq.${id}`);toast('Deleted','success');await fetchCpData();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+// Report
+function populateCpReportMonths(){
+  const allMonths=[...new Set([...cpBagsAll,...cpCftAll].map(e=>e.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('cpReportMonth');const cur=sel.value;
+  sel.innerHTML='<option value="">Select Month</option>'+allMonths.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;}).join('');
+}
+
+function loadCpReport(){
+  const month=document.getElementById('cpReportMonth').value;
+  const el=document.getElementById('cpReportContent');
+  if(!month){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;return;}
+  const bags=cpBagsAll.filter(e=>e.date?.startsWith(month));
+  const cfts=cpCftAll.filter(e=>e.date?.startsWith(month));
+  if(!bags.length&&!cfts.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No entries for this month</div></div>`;return;}
+  const bagTotal=bags.reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const cftTotal=cfts.reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const bagCash=bags.filter(e=>e.amount_type==='cash').reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const bagAcct=bags.filter(e=>e.amount_type==='account').reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const cftCash=cfts.filter(e=>e.amount_type==='cash').reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const cftAcct=cfts.filter(e=>e.amount_type==='account').reduce((s,e)=>s+parseFloat(e.total_amount||0),0);
+  const fmt=(n)=>'₹'+parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:2});
+  el.innerHTML=`
+    <div class="report-summary" style="flex-wrap:wrap;gap:16px;">
+      <div class="rsm"><div class="rl">Bags Entries</div><div class="rv" style="color:var(--primary)">${bags.length}</div></div>
+      <div class="rsm"><div class="rl">Bags Total</div><div class="rv" style="color:var(--success)">${fmt(bagTotal)}</div></div>
+      <div class="rsm"><div class="rl">Bags Cash</div><div class="rv" style="color:var(--warning)">${fmt(bagCash)}</div></div>
+      <div class="rsm"><div class="rl">Bags Account</div><div class="rv" style="color:var(--primary)">${fmt(bagAcct)}</div></div>
+      <div class="rsm"><div class="rl">CFT Entries</div><div class="rv" style="color:var(--primary)">${cfts.length}</div></div>
+      <div class="rsm"><div class="rl">CFT Total</div><div class="rv" style="color:var(--success)">${fmt(cftTotal)}</div></div>
+      <div class="rsm"><div class="rl">CFT Cash</div><div class="rv" style="color:var(--warning)">${fmt(cftCash)}</div></div>
+      <div class="rsm"><div class="rl">CFT Account</div><div class="rv" style="color:var(--primary)">${fmt(cftAcct)}</div></div>
+    </div>
+    ${bags.length?`<div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">🛍 Bags Entries</div>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Vehicle</th><th>Bags</th><th>Rate</th><th>Total</th><th>Type</th></tr></thead>
+    <tbody>${bags.map((e,i)=>`<tr><td class="sno">${i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td>${e.num_bags}</td><td>₹${parseFloat(e.rate_per_bag).toFixed(2)}</td><td style="font-weight:700">${fmt(e.total_amount)}</td><td><span class="${e.amount_type==='cash'?'cash-badge':'account-badge'}">${e.amount_type==='cash'?'💵 Cash':'🏦 Account'}</span></td></tr>`).join('')}</tbody></table></div>`:''}
+    ${cfts.length?`<div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">📦 CFT Entries</div>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>Date</th><th>Name</th><th>Vehicle</th><th>CFT</th><th>Rate</th><th>Total</th><th>Type</th></tr></thead>
+    <tbody>${cfts.map((e,i)=>`<tr><td class="sno">${i+1}</td><td>${fd(e.date)}</td><td class="name-cell">${e.name}</td><td><span class="vbadge">${e.vehicle_number}</span></td><td><span class="cft-badge">${e.cft_value}</span></td><td>₹${parseFloat(e.rate_per_cft).toFixed(2)}</td><td style="font-weight:700">${fmt(e.total_amount)}</td><td><span class="${e.amount_type==='cash'?'cash-badge':'account-badge'}">${e.amount_type==='cash'?'💵 Cash':'🏦 Account'}</span></td></tr>`).join('')}</tbody></table></div>`:''}
+  `;
+}
+
+function exportCpReport(){
+  const month=document.getElementById('cpReportMonth').value;
+  if(!month){toast('Select a month first','error');return;}
+  const bags=cpBagsAll.filter(e=>e.date?.startsWith(month));
+  const cfts=cpCftAll.filter(e=>e.date?.startsWith(month));
+  const wb=XLSX.utils.book_new();
+  if(bags.length){
+    const ws=XLSX.utils.json_to_sheet(bags.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Vehicle':e.vehicle_number,'Bags':e.num_bags,'Rate/Bag':e.rate_per_bag,'Total':e.total_amount,'Type':e.amount_type})));
+    ws['!cols']=[6,13,20,18,8,10,12,10].map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb,ws,'Bags');
+  }
+  if(cfts.length){
+    const ws=XLSX.utils.json_to_sheet(cfts.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Vehicle':e.vehicle_number,'CFT':e.cft_value,'Rate/CFT':e.rate_per_cft,'Total':e.total_amount,'Type':e.amount_type})));
+    ws['!cols']=[6,13,20,18,8,10,12,10].map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb,ws,'CFT');
+  }
+  XLSX.writeFile(wb,`cocopeat_report_${month}.xlsx`);toast('Excel exported!','success');
+}
+function exportCpBags(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(cpBagsFiltered.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Vehicle':e.vehicle_number,'Bags':e.num_bags,'Rate/Bag':e.rate_per_bag,'Total':e.total_amount,'Type':e.amount_type})));
+  ws['!cols']=[6,13,20,18,8,10,12,10].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'Bags');
+  XLSX.writeFile(wb,'cocopeat_bags.xlsx');toast('Exported!','success');
+}
+function exportCpCft(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(cpCftFiltered.map((e,i)=>({'S.No':i+1,'Date':fd(e.date),'Name':e.name,'Vehicle':e.vehicle_number,'CFT':e.cft_value,'Rate/CFT':e.rate_per_cft,'Total':e.total_amount,'Type':e.amount_type})));
+  ws['!cols']=[6,13,20,18,8,10,12,10].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'CFT');
+  XLSX.writeFile(wb,'cocopeat_cft.xlsx');toast('Exported!','success');
+}
+
+// Init cocopeat dates
+function initCpDates(){
+  const today=new Date().toISOString().split('T')[0];
+  ['cpb-date','cpc-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+}
+</script>
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner">
+    <button class="mbn-btn active" id="mbnHusk" onclick="switchModule('husk')" style="position:relative">
+      <span class="mbn-icon">🌾</span>Husk
+    </button>
+    <button class="mbn-btn" id="mbnCocopeat" onclick="switchModule('cocopeat')" style="position:relative">
+      <span class="mbn-icon">🥥</span>Cocopeat
+    </button>
+    <button class="mbn-btn" id="mbnAttendance" onclick="switchModule('attendance')" style="position:relative">
+      <span class="mbn-icon">👷</span>Attend
+    </button>
+    <button class="mbn-btn" id="mbnVehExp" onclick="switchModule('vehexp')" style="position:relative">
+      <span class="mbn-icon">🚗</span>Expenses
+    </button>
+    <button class="mbn-btn" id="mbnMenu" onclick="toggleSidebar()" style="position:relative">
+      <span class="mbn-icon">☰</span>Menu
+      <span class="mbn-badge" id="mbnBellBadge" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+// PWA Manifest inline
+const manifest={name:'CocoFarmX',short_name:'CocoFarmX',description:'Farm Management System',start_url:'/',display:'standalone',background_color:'#f8fafc',theme_color:'#1e293b',orientation:'portrait-primary',icons:[{src:'https://api.iconify.design/twemoji:coconut.svg?width=192&height=192',sizes:'192x192',type:'image/svg+xml'},{src:'https://api.iconify.design/twemoji:coconut.svg?width=512&height=512',sizes:'512x512',type:'image/svg+xml'}]};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
+
+// Sidebar toggle
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebarOverlay');
+  const open=s.classList.toggle('open');
+  o.style.display=open?'block':'none';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').style.display='none';
+}
+
+// Update mobile bottom nav active state
+function updateMobileNav(mod){
+  ['Husk','Cocopeat','Attendance','VehExp'].forEach(m=>{
+    const el=document.getElementById('mbn'+m);
+    if(el)el.classList.toggle('active',m.toLowerCase()===mod.toLowerCase()||(m==='VehExp'&&mod==='vehexp'));
+  });
+  // Apply permissions to mobile nav
+  const perms=currentUser?.permissions||{};
+  const isAdmin=currentUser?.role==='admin';
+  document.getElementById('mbnHusk').style.display=(isAdmin||perms.husk)?'':'none';
+  document.getElementById('mbnCocopeat').style.display=(isAdmin||perms.cocopeat)?'':'none';
+  document.getElementById('mbnAttendance').style.display=(isAdmin||perms.attendance)?'':'none';
+  document.getElementById('mbnVehExp').style.display=(isAdmin||perms.vehexp)?'':'none';
+}
+
+// Close sidebar on nav click (mobile)
+const origSwitchModule=switchModule;
+switchModule=function(mod){
+  origSwitchModule(mod);
+  updateMobileNav(mod);
+  closeSidebar();
+};
+
+// Bell badge sync
+const origFetchNotif=fetchNotifications;
+fetchNotifications=async function(){
+  await origFetchNotif();
+  const badge=document.getElementById('bellBadge');
+  const mbnBadge=document.getElementById('mbnBellBadge');
+  if(badge&&mbnBadge){
+    mbnBadge.textContent=badge.textContent;
+    mbnBadge.style.display=badge.style.display==='none'?'none':'flex';
+  }
+};
+
+// On startApp, init mobile nav
+const origStartApp=startApp;
+startApp=function(){
+  origStartApp();
+  setTimeout(()=>updateMobileNav(currentModule||'husk'),100);
+};
 </script>
 </body>
 </html>
