@@ -382,6 +382,7 @@ tbody tr:hover td{background:#fafbff;}
       <button class="nav-item" id="attNavReport" onclick="switchAttTab(1)"><span class="ni">📊</span>Reports</button>
       <button class="nav-item" id="attNavAdv" onclick="switchAttTab(2)"><span class="ni">💰</span>Advances</button>
       <button class="nav-item" id="attNavEmp" onclick="switchAttTab(3)"><span class="ni">👷</span>Employees</button>
+      <button class="nav-item" id="attNavMonthly" onclick="switchAttTab(5)"><span class="ni">📋</span>Monthly View</button>
     </div>
   </nav>
 
@@ -641,6 +642,7 @@ tbody tr:hover td{background:#fafbff;}
       <button id="attTab2" style="display:none"></button>
       <button id="attTab3" style="display:none"></button>
       <button id="attTab4" style="display:none"></button>
+      <button id="attTab5" style="display:none"></button>
       <!-- MARK ATTENDANCE -->
       <div id="att-tab-0">
         <div class="card" style="margin-bottom:16px">
@@ -705,6 +707,24 @@ tbody tr:hover td{background:#fafbff;}
               <thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Amount</th><th>Note</th><th class="no-print">Actions</th></tr></thead>
               <tbody id="advTableBody"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY VIEW (all users) -->
+      <div id="att-tab-5" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Monthly Attendance</div>
+            <div class="flex gap-2 no-print">
+              <select class="filter-select" id="attMonthlyMonth" onchange="loadMonthlyView()"><option value="">Select Month</option></select>
+              <select class="filter-select" id="attMonthlyEmp" style="display:none" onchange="loadMonthlyView()"><option value="">All Employees</option></select>
+              <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print</button>
+              <button class="btn btn-success btn-sm" onclick="exportMonthlyView()">⬇ Excel</button>
+            </div>
+          </div>
+          <div id="monthlyViewContent">
+            <div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>
           </div>
         </div>
       </div>
@@ -1609,6 +1629,131 @@ function setTodayDate(){const el=document.getElementById('f-date');if(el)el.valu
 let toastTimer;
 function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='',3200);}
 
+// MONTHLY VIEW
+function initMonthlyView(){
+  const isAdmin=currentUser?.role==='admin';
+  // Populate months from approved entries only
+  const approved=allAttendance.filter(a=>a.status==='approved');
+  const months=[...new Set(approved.map(a=>a.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const sel=document.getElementById('attMonthlyMonth');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Select Month</option>'+months.map(m=>{
+    const[y,mo]=m.split('-');
+    return`<option value="${m}" ${cur===m?'selected':''}>${new Date(y,mo-1).toLocaleString('default',{month:'long',year:'numeric'})}</option>`;
+  }).join('');
+  // Show employee filter only for admin
+  const empFilter=document.getElementById('attMonthlyEmp');
+  if(empFilter){
+    empFilter.style.display=isAdmin?'':'none';
+    if(isAdmin){
+      const cur2=empFilter.value;
+      empFilter.innerHTML='<option value="">All Employees</option>'+allEmployees.map(e=>`<option value="${e.id}" ${cur2===String(e.id)?'selected':''}>${e.name}</option>`).join('');
+    }
+  }
+  if(cur)loadMonthlyView();
+}
+
+function loadMonthlyView(){
+  const month=document.getElementById('attMonthlyMonth').value;
+  const empFilter=document.getElementById('attMonthlyEmp');
+  const empId=empFilter?.value||'';
+  const el=document.getElementById('monthlyViewContent');
+  const isAdmin=currentUser?.role==='admin';
+
+  if(!month){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Select a month</div></div>`;
+    return;
+  }
+
+  // Only approved entries
+  let data=allAttendance.filter(a=>a.status==='approved'&&a.date?.startsWith(month));
+
+  // For non-admin: show only their own submitted entries
+  if(!isAdmin){
+    data=data.filter(a=>a.submitted_by===currentUser.username);
+  } else if(empId){
+    data=data.filter(a=>String(a.employee_id)===empId);
+  }
+
+  if(!data.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No approved entries for this month</div></div>`;
+    return;
+  }
+
+  const fmt=n=>'₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});
+
+  // Summary per employee
+  const empMap={};
+  data.forEach(a=>{
+    if(!empMap[a.employee_id])empMap[a.employee_id]={name:a.employee_name,days:0,totalHrs:0,totalSalary:0,entries:[]};
+    empMap[a.employee_id].days+=1;
+    empMap[a.employee_id].totalHrs+=parseFloat(a.hours_worked||0);
+    empMap[a.employee_id].totalSalary+=parseFloat(a.salary_earned||0);
+    empMap[a.employee_id].entries.push(a);
+  });
+
+  const grandDays=data.length;
+  const grandHrs=data.reduce((s,a)=>s+parseFloat(a.hours_worked||0),0);
+  const grandSalary=data.reduce((s,a)=>s+parseFloat(a.salary_earned||0),0);
+
+  el.innerHTML=`
+    <div class="report-summary">
+      <div class="rsm"><div class="rl">Total Days</div><div class="rv" style="color:var(--primary)">${[...new Set(data.map(a=>a.date))].length}</div></div>
+      <div class="rsm"><div class="rl">Total Entries</div><div class="rv" style="color:var(--primary)">${grandDays}</div></div>
+      <div class="rsm"><div class="rl">Total Hours</div><div class="rv" style="color:var(--success)">${grandHrs.toFixed(1)} hrs</div></div>
+      ${isAdmin?`<div class="rsm"><div class="rl">Total Salary</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary)}</div></div>`:''}
+    </div>
+
+    ${isAdmin&&Object.keys(empMap).length>1?`
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Employee Summary</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Employee</th><th>Days</th><th>Total Hrs</th><th>Salary</th></tr></thead>
+      <tbody>${Object.values(empMap).map(e=>`<tr>
+        <td class="name-cell">${e.name}</td>
+        <td>${e.days}</td>
+        <td><span class="cft-badge">${e.totalHrs.toFixed(1)} hrs</span></td>
+        <td style="font-weight:700;color:#7c3aed">${fmt(e.totalSalary)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:''}
+
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Daily Entries</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Date</th>${isAdmin?'<th>Employee</th>':''}<th>Hours</th>${isAdmin?'<th>Salary</th>':''}<th>Note</th><th>Approved</th></tr></thead>
+      <tbody>${data.sort((a,b)=>a.date.localeCompare(b.date)).map((a,i)=>`<tr>
+        <td class="sno">${i+1}</td>
+        <td>${fd(a.date)}</td>
+        ${isAdmin?`<td class="name-cell">${a.employee_name}</td>`:''}
+        <td><span class="cft-badge">${parseFloat(a.hours_worked).toFixed(1)} hrs</span></td>
+        ${isAdmin?`<td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>`:''}
+        <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
+        <td><span class="present-badge">✓ Approved</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  `;
+}
+
+function exportMonthlyView(){
+  const month=document.getElementById('attMonthlyMonth').value;
+  if(!month){toast('Select a month first','error');return;}
+  const isAdmin=currentUser?.role==='admin';
+  const empId=document.getElementById('attMonthlyEmp')?.value||'';
+  let data=allAttendance.filter(a=>a.status==='approved'&&a.date?.startsWith(month));
+  if(!isAdmin)data=data.filter(a=>a.submitted_by===currentUser.username);
+  else if(empId)data=data.filter(a=>String(a.employee_id)===empId);
+  data.sort((a,b)=>a.date.localeCompare(b.date));
+  const wb=XLSX.utils.book_new();
+  const rows=data.map((a,i)=>{
+    const row={'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Hours':a.hours_worked,'Note':a.note||''};
+    if(isAdmin)row['Salary']=a.salary_earned;
+    return row;
+  });
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[6,13,20,8,20,14].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'Monthly Attendance');
+  XLSX.writeFile(wb,`attendance_${month}.xlsx`);
+  toast('Exported!','success');
+}
+
 // ============================================================
 // VEHICLE EXPENSES MODULE
 // ============================================================
@@ -1861,27 +2006,30 @@ async function fetchAttData(){
       document.getElementById('attNavAdv').style.display='none';
       document.getElementById('attNavEmp').style.display='none';
       document.getElementById('attNavReport').style.display='none';
+      document.getElementById('attNavMonthly').style.display='';
     } else {
       document.getElementById('attNavApprove').style.display='';
+      document.getElementById('attNavMonthly').style.display='';
     }
   }catch(e){toast('Error loading attendance: '+e.message,'error');}
 }
 
 function switchAttTab(idx){
-  [0,1,2,3,4].forEach(i=>{
+  [0,1,2,3,4,5].forEach(i=>{
     document.getElementById('att-tab-'+i)?.classList.toggle('hidden',i!==idx);
     document.getElementById('attTab'+i)?.classList.toggle('active',i===idx);
   });
   const navIds=['attNavMark',null,'attNavReport','attNavAdv','attNavEmp'];
   // map tab idx to nav
-  const navMap={0:'attNavMark',1:'attNavReport',2:'attNavAdv',3:'attNavEmp',4:'attNavApprove'};
+  const navMap={0:'attNavMark',1:'attNavReport',2:'attNavAdv',3:'attNavEmp',4:'attNavApprove',5:'attNavMonthly'};
   Object.values(navMap).forEach(id=>document.getElementById(id)?.classList.remove('active'));
   if(navMap[idx])document.getElementById(navMap[idx])?.classList.add('active');
-  const titles=['Mark Attendance','Reports','Advances','Employees','Approvals'];
+  const titles=['Mark Attendance','Reports','Advances','Employees','Approvals','Monthly View'];
   document.getElementById('pageTitle').textContent=titles[idx]||'Attendance';
   if(idx===1)populateAttReportFilters();
   if(idx===2){populateAdvEmpSelect();renderAdvances();initAdvDate();}
   if(idx===4)renderPendingApprovals();
+  if(idx===5)initMonthlyView();
 }
 
 // MARK ATTENDANCE
