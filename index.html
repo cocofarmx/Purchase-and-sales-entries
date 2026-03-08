@@ -978,6 +978,10 @@ tbody tr:hover td{background:#fafbff;}
           <input type="checkbox" id="ep-perm-vehexp" style="width:16px;height:16px;accent-color:#0f172a"/>
           <span>🚗 Vehicle Expenses</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Track fuel, repair, tyre expenses</span>
         </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:0.92rem;font-weight:600;cursor:pointer;padding:12px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);">
+          <input type="checkbox" id="ep-perm-view-salary" style="width:16px;height:16px;accent-color:#16a34a"/>
+          <span>💰 View Salary Details</span><span style="margin-left:auto;font-size:0.75rem;color:var(--muted)">Show salary in attendance</span>
+        </label>
       </div>
     </div>
     <div class="modal-footer">
@@ -1569,6 +1573,7 @@ function openEditPermissions(id){
   document.getElementById('ep-perm-cocopeat').checked=!!p.cocopeat;
   document.getElementById('ep-perm-attendance').checked=!!p.attendance;
   document.getElementById('ep-perm-vehexp').checked=!!p.vehexp;
+  document.getElementById('ep-perm-view-salary').checked=!!p.view_salary;
   openModal('editPermsModal');
 }
 async function savePermissions(){
@@ -1577,7 +1582,8 @@ async function savePermissions(){
     husk:document.getElementById('ep-perm-husk').checked,
     cocopeat:document.getElementById('ep-perm-cocopeat').checked,
     attendance:document.getElementById('ep-perm-attendance').checked,
-    vehexp:document.getElementById('ep-perm-vehexp').checked
+    vehexp:document.getElementById('ep-perm-vehexp').checked,
+    view_salary:document.getElementById('ep-perm-view-salary').checked
   };
   try{
     await api('PATCH','users',{permissions},`id=eq.${id}`);
@@ -1701,10 +1707,10 @@ function loadMonthlyView(){
       <div class="rsm"><div class="rl">Total Days</div><div class="rv" style="color:var(--primary)">${[...new Set(data.map(a=>a.date))].length}</div></div>
       <div class="rsm"><div class="rl">Total Entries</div><div class="rv" style="color:var(--primary)">${grandDays}</div></div>
       <div class="rsm"><div class="rl">Total Hours</div><div class="rv" style="color:var(--success)">${grandHrs.toFixed(1)} hrs</div></div>
-      ${isAdmin?`<div class="rsm"><div class="rl">Total Salary</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary)}</div></div>`:''}
+      ${canViewSalary()?`<div class="rsm"><div class="rl">Total Salary</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary)}</div></div>`:''}
     </div>
 
-    ${isAdmin&&Object.keys(empMap).length>1?`
+    ${canViewSalary()&&Object.keys(empMap).length>1?`
     <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Employee Summary</div>
     <div class="table-wrap"><table>
       <thead><tr><th>Employee</th><th>Days</th><th>Total Hrs</th><th>Salary</th></tr></thead>
@@ -1718,13 +1724,13 @@ function loadMonthlyView(){
 
     <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Daily Entries</div>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Date</th>${isAdmin?'<th>Employee</th>':''}<th>Hours</th>${isAdmin?'<th>Salary</th>':''}<th>Note</th><th>Approved</th></tr></thead>
+      <thead><tr><th>#</th><th>Date</th>${canViewSalary()?'<th>Employee</th>':''}<th>Hours</th>${canViewSalary()?'<th>Salary</th>':''}<th>Note</th><th>Approved</th></tr></thead>
       <tbody>${data.sort((a,b)=>a.date.localeCompare(b.date)).map((a,i)=>`<tr>
         <td class="sno">${i+1}</td>
         <td>${fd(a.date)}</td>
-        ${isAdmin?`<td class="name-cell">${a.employee_name}</td>`:''}
+${canViewSalary()?`<td class="name-cell">${a.employee_name}</td>`:''}
         <td><span class="cft-badge">${parseFloat(a.hours_worked).toFixed(1)} hrs</span></td>
-        ${isAdmin?`<td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>`:''}
+${canViewSalary()?`<td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>`:''}
         <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
         <td><span class="present-badge">✓ Approved</span></td>
       </tr>`).join('')}</tbody>
@@ -1744,7 +1750,7 @@ function exportMonthlyView(){
   const wb=XLSX.utils.book_new();
   const rows=data.map((a,i)=>{
     const row={'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Hours':a.hours_worked,'Note':a.note||''};
-    if(isAdmin)row['Salary']=a.salary_earned;
+    if(canViewSalary())row['Salary']=a.salary_earned;
     return row;
   });
   const ws=XLSX.utils.json_to_sheet(rows);
@@ -2005,11 +2011,12 @@ async function fetchAttData(){
       document.getElementById('attNavApprove').style.display='none';
       document.getElementById('attNavAdv').style.display='none';
       document.getElementById('attNavEmp').style.display='none';
-      document.getElementById('attNavReport').style.display='none';
+      document.getElementById('attNavReport').style.display='';
       document.getElementById('attNavMonthly').style.display='';
     } else {
       document.getElementById('attNavApprove').style.display='';
       document.getElementById('attNavMonthly').style.display='';
+      document.getElementById('attNavReport').style.display='';
     }
   }catch(e){toast('Error loading attendance: '+e.message,'error');}
 }
@@ -2060,11 +2067,11 @@ function renderAttCards(){
     const salary=(hrs*hrRate).toFixed(2);
     return `<div class="att-card" id="attcard-${emp.id}" data-rate="${hrRate}">
       <div class="att-name">${emp.name}</div>
-      <div class="att-desig">${emp.designation||'Employee'} ${emp.phone?'· '+emp.phone:''} ${isAdminUser?`<span style="color:var(--success);font-weight:700">₹${emp.daily_wage||DEFAULT_DAILY_WAGE}/day</span>`:''}</div>
+      <div class="att-desig">${emp.designation||'Employee'} ${emp.phone?'· '+emp.phone:''} ${canViewSalary()?`<span style="color:var(--success);font-weight:700">₹${emp.daily_wage||DEFAULT_DAILY_WAGE}/day</span>`:''}</div>
       <div class="hours-input-wrap">
         <input type="number" class="hours-input" id="att-hrs-${emp.id}" value="${hrs}" min="0" max="16" step="0.5" oninput="updateSalaryPill(${emp.id},${hrRate})" placeholder="hrs"/>
         <span style="font-size:0.8rem;color:var(--muted)">hrs</span>
-        ${isAdminUser?`<span class="salary-pill" id="att-sal-${emp.id}">₹${(hrs*hrRate).toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`:`<span id="att-sal-${emp.id}" style="display:none"></span>`}
+        ${canViewSalary()?`<span class="salary-pill" id="att-sal-${emp.id}">₹${(hrs*hrRate).toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`:`<span id="att-sal-${emp.id}" style="display:none"></span>`}
       </div>
       <div class="flex gap-2 items-center">
         <button class="absent-btn ${(!att||hrs>0)?'':'active'}" id="att-absent-${emp.id}" onclick="toggleAbsent(${emp.id})">Absent</button>
@@ -2253,7 +2260,10 @@ function populateAttFilters(){
 
 function populateAttReportFilters(){
   populateAttFilters();
+  const isAdmin=currentUser?.role==='admin';
   const empSel=document.getElementById('attReportEmp');if(!empSel)return;
+  empSel.style.display=isAdmin?'':'none';
+  if(!isAdmin)return;
   const cur=empSel.value;
   empSel.innerHTML='<option value="">All Employees</option>'+allEmployees.map(e=>`<option value="${e.id}" ${cur===String(e.id)?'selected':''}>${e.name}</option>`).join('');
 }
@@ -2288,35 +2298,40 @@ function loadAttReport(){
 
   el.innerHTML=`
     <div class="report-summary">
-      <div class="rsm"><div class="rl">Total Days Data</div><div class="rv" style="color:var(--primary)">${[...new Set(attData.map(a=>a.date))].length}</div></div>
+      <div class="rsm"><div class="rl">Total Days</div><div class="rv" style="color:var(--primary)">${[...new Set(attData.map(a=>a.date))].length}</div></div>
+      <div class="rsm"><div class="rl">Total Entries</div><div class="rv" style="color:var(--primary)">${attData.length}</div></div>
+      <div class="rsm"><div class="rl">Total Hours</div><div class="rv" style="color:var(--success)">${attData.reduce((s,a)=>s+parseFloat(a.hours_worked||0),0).toFixed(1)} hrs</div></div>
+      ${canViewSalary()?`
       <div class="rsm"><div class="rl">Total Salary</div><div class="rv" style="color:var(--success)">${fmt(grandSalary)}</div></div>
       <div class="rsm"><div class="rl">Total Advances</div><div class="rv" style="color:var(--warning)">${fmt(grandAdv)}</div></div>
-      <div class="rsm"><div class="rl">Net Payable</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary-grandAdv)}</div></div>
+      <div class="rsm"><div class="rl">Net Payable</div><div class="rv" style="color:#7c3aed">${fmt(grandSalary-grandAdv)}</div></div>`:''}
     </div>
+    ${canViewSalary()?`
     <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Employee Summary</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>#</th><th>Employee</th><th>Days</th><th>Total Hrs</th><th>Salary Earned</th><th>Advances</th><th>Net Payable</th></tr></thead>
-        <tbody>${Object.entries(empMap).map(([id,e],i)=>`<tr>
-          <td class="sno">${i+1}</td>
-          <td class="name-cell">${e.name}</td>
-          <td style="font-weight:600">${e.days}</td>
-          <td><span class="cft-badge">${e.totalHrs.toFixed(1)} hrs</span></td>
-          <td style="font-weight:700;color:var(--success)">${fmt(e.totalSalary)}</td>
-          <td style="color:var(--warning);font-weight:700">${fmt(e.advance||0)}</td>
-          <td style="font-weight:800;color:#7c3aed">${fmt(e.totalSalary-(e.advance||0))}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-    </div>
-    ${attData.length?`<div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Daily Attendance Detail</div>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Hours</th><th>Salary</th><th>Note</th></tr></thead>
-      <tbody>${attData.map((a,i)=>`<tr>
-        <td class="sno">${i+1}</td><td>${fd(a.date)}</td>
-        <td class="name-cell">${a.employee_name}</td>
-        <td>${parseFloat(a.hours_worked).toFixed(1)} hrs</td>
-        <td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>
+      <thead><tr><th>#</th><th>Employee</th><th>Days</th><th>Total Hrs</th><th>Salary</th><th>Advances</th><th>Net Payable</th></tr></thead>
+      <tbody>${Object.entries(empMap).map(([id,e],i)=>`<tr>
+        <td class="sno">${i+1}</td>
+        <td class="name-cell">${e.name}</td>
+        <td style="font-weight:600">${e.days}</td>
+        <td><span class="cft-badge">${e.totalHrs.toFixed(1)} hrs</span></td>
+        <td style="font-weight:700;color:var(--success)">${fmt(e.totalSalary)}</td>
+        <td style="color:var(--warning);font-weight:700">${fmt(e.advance||0)}</td>
+        <td style="font-weight:800;color:#7c3aed">${fmt(e.totalSalary-(e.advance||0))}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:''}
+    ${attData.length?`
+    <div style="padding:14px 20px 8px;font-size:0.85rem;font-weight:700;border-top:1px solid var(--border)">Daily Attendance Detail</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Date</th>${canViewSalary()?'<th>Employee</th>':''}<th>Hours</th>${canViewSalary()?'<th>Salary</th>':''}<th>Note</th><th>Status</th></tr></thead>
+      <tbody>${attData.sort((a,b)=>a.date.localeCompare(b.date)).map((a,i)=>`<tr>
+        <td class="sno">${i+1}</td>
+        <td>${fd(a.date)}</td>
+${canViewSalary()?`<td class="name-cell">${a.employee_name}</td>`:''}
+        <td><span class="cft-badge">${parseFloat(a.hours_worked).toFixed(1)} hrs</span></td>
+${canViewSalary()?`<td style="font-weight:700;color:var(--success)">${fmt(a.salary_earned)}</td>`:''}
         <td style="color:var(--muted);font-size:0.82rem">${a.note||'—'}</td>
+        <td><span class="present-badge">✓ Approved</span></td>
       </tr>`).join('')}</tbody>
     </table></div>`:''}
   `;
@@ -2325,14 +2340,21 @@ function loadAttReport(){
 function exportAttReport(){
   const month=document.getElementById('attReportMonth').value;
   if(!month){toast('Select a month first','error');return;}
-  const empId=document.getElementById('attReportEmp').value;
-  let attData=allAttendance.filter(a=>a.date?.startsWith(month));
-  if(empId)attData=attData.filter(a=>String(a.employee_id)===empId);
+  const isAdmin=currentUser?.role==='admin';
+  const empId=document.getElementById('attReportEmp')?.value||'';
+  let attData=allAttendance.filter(a=>a.date?.startsWith(month)&&a.status==='approved');
+  if(!isAdmin)attData=attData.filter(a=>a.submitted_by===currentUser.username);
+  else if(empId)attData=attData.filter(a=>String(a.employee_id)===empId);
   let advData=allAdvances.filter(a=>a.date?.startsWith(month));
   if(empId)advData=advData.filter(a=>String(a.employee_id)===empId);
   const wb=XLSX.utils.book_new();
   if(attData.length){
-    const ws=XLSX.utils.json_to_sheet(attData.map((a,i)=>({'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Hours Worked':a.hours_worked,'Salary Earned':a.salary_earned,'Note':a.note||''})));
+    const rows=attData.map((a,i)=>{
+      const r={'S.No':i+1,'Date':fd(a.date),'Employee':a.employee_name,'Hours Worked':a.hours_worked,'Note':a.note||''};
+      if(canViewSalary())r['Salary Earned']=a.salary_earned;
+      return r;
+    });
+    const ws=XLSX.utils.json_to_sheet(rows);
     ws['!cols']=[6,13,20,12,14,20].map(w=>({wch:w}));
     XLSX.utils.book_append_sheet(wb,ws,'Attendance');
   }
@@ -2351,6 +2373,11 @@ function initAdvDate(){
 }
 
 // PERMISSIONS
+function canViewSalary(){
+  if(currentUser?.role==='admin') return true;
+  return currentUser?.permissions?.view_salary===true;
+}
+
 function applyPermissions(){
   const perms=currentUser?.permissions||{};
   const isAdmin=currentUser?.role==='admin';
