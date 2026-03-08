@@ -317,7 +317,7 @@ tbody tr:hover td{background:#fafbff;}
 <div id="appPage" class="hidden">
 <div class="layout">
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">🌾</div>
     <div class="logo-text">CocoFarmX<span>Management System</span></div>
@@ -2578,64 +2578,131 @@ function initCpDates(){
 </nav>
 
 <script>
-// PWA Manifest inline
-const manifest={name:'CocoFarmX',short_name:'CocoFarmX',description:'Farm Management System',start_url:'/',display:'standalone',background_color:'#f8fafc',theme_color:'#1e293b',orientation:'portrait-primary',icons:[{src:'https://api.iconify.design/twemoji:coconut.svg?width=192&height=192',sizes:'192x192',type:'image/svg+xml'},{src:'https://api.iconify.design/twemoji:coconut.svg?width=512&height=512',sizes:'512x512',type:'image/svg+xml'}]};
-const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
-
-// Sidebar toggle
+// ── Sidebar toggle ──────────────────────────────────────────
 function toggleSidebar(){
   const s=document.getElementById('sidebar');
   const o=document.getElementById('sidebarOverlay');
+  if(!s)return;
   const open=s.classList.toggle('open');
   o.style.display=open?'block':'none';
 }
 function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').style.display='none';
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebarOverlay');
+  if(s)s.classList.remove('open');
+  if(o)o.style.display='none';
 }
 
-// Update mobile bottom nav active state
+// ── Mobile bottom nav ───────────────────────────────────────
 function updateMobileNav(mod){
   ['Husk','Cocopeat','Attendance','VehExp'].forEach(m=>{
     const el=document.getElementById('mbn'+m);
     if(el)el.classList.toggle('active',m.toLowerCase()===mod.toLowerCase()||(m==='VehExp'&&mod==='vehexp'));
   });
-  // Apply permissions to mobile nav
   const perms=currentUser?.permissions||{};
   const isAdmin=currentUser?.role==='admin';
-  document.getElementById('mbnHusk').style.display=(isAdmin||perms.husk)?'':'none';
-  document.getElementById('mbnCocopeat').style.display=(isAdmin||perms.cocopeat)?'':'none';
-  document.getElementById('mbnAttendance').style.display=(isAdmin||perms.attendance)?'':'none';
-  document.getElementById('mbnVehExp').style.display=(isAdmin||perms.vehexp)?'':'none';
+  const mbnMap={mbnHusk:'husk',mbnCocopeat:'cocopeat',mbnAttendance:'attendance',mbnVehExp:'vehexp'};
+  Object.entries(mbnMap).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=(isAdmin||perms[key])?'flex':'none';
+  });
 }
 
-// Close sidebar on nav click (mobile)
-const origSwitchModule=switchModule;
+// Wrap switchModule to update mobile nav + close sidebar
+const _origSwitch=switchModule;
 switchModule=function(mod){
-  origSwitchModule(mod);
+  _origSwitch(mod);
   updateMobileNav(mod);
   closeSidebar();
 };
 
 // Bell badge sync
-const origFetchNotif=fetchNotifications;
+const _origNotif=fetchNotifications;
 fetchNotifications=async function(){
-  await origFetchNotif();
+  await _origNotif();
   const badge=document.getElementById('bellBadge');
-  const mbnBadge=document.getElementById('mbnBellBadge');
-  if(badge&&mbnBadge){
-    mbnBadge.textContent=badge.textContent;
-    mbnBadge.style.display=badge.style.display==='none'?'none':'flex';
+  const mbn=document.getElementById('mbnBellBadge');
+  if(badge&&mbn){
+    mbn.textContent=badge.textContent;
+    mbn.style.display=badge.style.display==='none'?'none':'flex';
   }
 };
 
-// On startApp, init mobile nav
-const origStartApp=startApp;
+// Init mobile nav after login
+const _origStart=startApp;
 startApp=function(){
-  origStartApp();
-  setTimeout(()=>updateMobileNav(currentModule||'husk'),100);
+  _origStart();
+  setTimeout(()=>updateMobileNav(currentModule||'husk'),200);
 };
+
+// ── PWA Manifest ────────────────────────────────────────────
+const _manifest={
+  name:'CocoFarmX',
+  short_name:'CocoFarmX',
+  description:'CocoFarm Management System',
+  start_url:'./',
+  display:'standalone',
+  background_color:'#f8fafc',
+  theme_color:'#1e293b',
+  orientation:'portrait-primary',
+  icons:[
+    {src:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥥</text></svg>',sizes:'192x192',type:'image/svg+xml'},
+    {src:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥥</text></svg>',sizes:'512x512',type:'image/svg+xml'}
+  ]
+};
+try{
+  const _blob=new Blob([JSON.stringify(_manifest)],{type:'application/json'});
+  const _url=URL.createObjectURL(_blob);
+  const _link=document.getElementById('pwa-manifest');
+  if(_link)_link.href=_url;
+}catch(e){console.warn('PWA manifest error:',e);}
+
+// ── Service Worker ──────────────────────────────────────────
+if('serviceWorker' in navigator){
+  const swCode=`
+const CACHE='cocofarmx-v1';
+const ASSETS=['./', './index.html'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./index.html')))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+  `.trim();
+  try{
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl,{scope:'./'}).then(()=>{
+      console.log('CocoFarmX SW registered');
+    }).catch(e=>console.warn('SW reg failed:',e));
+  }catch(e){console.warn('SW error:',e);}
+}
+
+// ── Install prompt (Android) ────────────────────────────────
+let _installPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  _installPrompt=e;
+  // Show install banner after login
+  const banner=document.getElementById('installBanner');
+  if(banner)banner.style.display='flex';
+});
+function installPWA(){
+  if(_installPrompt){
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(()=>{_installPrompt=null;});
+  }
+  const banner=document.getElementById('installBanner');
+  if(banner)banner.style.display='none';
+}
 </script>
+
+<!-- PWA Install Banner (Android) -->
+<div id="installBanner" style="display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1e293b;color:#fff;border-radius:12px;padding:12px 16px;align-items:center;gap:10px;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+  <span style="font-size:1.4rem">🥥</span>
+  <div style="flex:1">
+    <div style="font-size:0.85rem;font-weight:700">Install CocoFarmX</div>
+    <div style="font-size:0.72rem;opacity:0.7">Add to home screen for easy access</div>
+  </div>
+  <button onclick="installPWA()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;">Install</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:transparent;color:#fff;border:none;font-size:1.1rem;cursor:pointer;padding:4px;">✕</button>
+</div>
 </body>
 </html>
