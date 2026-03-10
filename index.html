@@ -1199,7 +1199,12 @@ const PER_PAGE=15;
 
 async function api(method,table,body,filter=''){
   const url=`${SB_URL}/rest/v1/${table}${filter?'?'+filter:''}`;
-  const res=await fetch(url,{method,headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':['POST','PATCH'].includes(method)?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  const headers={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`};
+  if(['POST','PATCH','PUT'].includes(method)){
+    headers['Content-Type']='application/json';
+    headers['Prefer']='return=representation';
+  }
+  const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined});
   if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.message||'API Error');}
   return method==='DELETE'?null:res.json();
 }
@@ -1219,31 +1224,28 @@ function doLogin(){
   btn.textContent='Signing in...';
   err.classList.remove('show');
   const url=SB_URL+'/rest/v1/users?username=eq.'+encodeURIComponent(username)+'&password=eq.'+encodeURIComponent(password)+'&is_active=eq.true&select=*';
-  fetch(url,{
-    method:'GET',
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
+  fetch(url,{method:'GET',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}})
+  .then(function(res){
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return res.json();
   })
-  .then(function(res){return res.json();})
   .then(function(users){
     if(!users||!users.length){
       err.textContent='Invalid username or password';
       err.classList.add('show');
-      btn.disabled=false;
-      btn.textContent='Sign In';
+      btn.disabled=false;btn.textContent='Sign In';
       return;
     }
     currentUser=users[0];
-    sessionStorage.setItem('huskerUser',JSON.stringify(currentUser));
-    btn.disabled=false;
-    btn.textContent='Sign In';
+    try{sessionStorage.setItem('huskerUser',JSON.stringify(currentUser));}catch(e){}
+    btn.disabled=false;btn.textContent='Sign In';
     startApp();
   })
   .catch(function(e){
     console.error('Login error:',e);
-    err.textContent='Connection error. Check internet and try again.';
+    err.textContent='Login failed: '+e.message;
     err.classList.add('show');
-    btn.disabled=false;
-    btn.textContent='Sign In';
+    btn.disabled=false;btn.textContent='Sign In';
   });
 }
 
